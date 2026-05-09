@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import logo from '../assets/logo.png';
 import './Auth.css';
 
 export default function LoginPage() {
@@ -17,7 +18,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed. Please try again.');
     } finally {
@@ -35,9 +36,9 @@ export default function LoginPage() {
 
       <div className="auth-card glass-card animate-slide-up">
         <div className="auth-header">
-          <span className="auth-logo">🌸</span>
+          <img src={logo} alt="YeoCycles" className="auth-logo-img" />
           <h1 className="auth-title">Welcome Back</h1>
-          <p className="auth-subtitle">Sign in to your Menstrual Health Companion</p>
+          <p className="auth-subtitle">Sign in to your YeoCycles account</p>
         </div>
 
         {error && <div className="alert alert-error">⚠️ {error}</div>}

@@ -7,7 +7,7 @@ export default function ProfilePage() {
   const { user, updateUser } = useAuth();
   const [form, setForm] = useState({
     name: user?.name || '',
-    date_of_birth: user?.date_of_birth || '',
+    date_of_birth: user?.date_of_birth ? user.date_of_birth.split('T')[0] : '',
     avg_cycle_length: user?.avg_cycle_length || 28
   });
   const [error, setError] = useState('');

@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import logo from '../assets/logo.png';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -15,8 +16,8 @@ export default function Navbar() {
     <nav className="navbar">
       <div className="navbar-container">
         <NavLink to="/dashboard" className="navbar-brand">
-          <span className="brand-icon">🌸</span>
-          <span className="brand-text">MHC</span>
+          <img src={logo} alt="YeoCycles" className="brand-logo" />
+          <span className="brand-text">YeoCycles</span>
         </NavLink>
 
         <div className="navbar-links">
@@ -43,7 +44,10 @@ export default function Navbar() {
         </div>
 
         <div className="navbar-user">
-          <span className="user-greeting">Hi, {user?.name?.split(' ')[0] || 'User'} 👋</span>
+          <div className="user-info">
+            <span className="user-avatar">{user?.name?.charAt(0)?.toUpperCase() || 'U'}</span>
+            <span className="user-greeting">Hi, {user?.name?.split(' ')[0] || 'User'}</span>
+          </div>
           <button onClick={handleLogout} className="btn-logout">
             Logout
           </button>

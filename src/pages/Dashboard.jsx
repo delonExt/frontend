@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import './Dashboard.css';
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const [prediction, setPrediction] = useState(null);
   const [cycles, setCycles] = useState([]);
   const [recentLogs, setRecentLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
+  useEffect(() => { loadDashboardData(); }, []);
 
   const loadDashboardData = async () => {
     try {
@@ -33,151 +33,212 @@ export default function Dashboard() {
 
   const getDaysUntil = () => {
     if (!prediction?.predicted_next_date) return null;
-    const diff = Math.ceil((new Date(prediction.predicted_next_date) - new Date()) / (1000 * 60 * 60 * 24));
-    return diff;
+    return Math.ceil((new Date(prediction.predicted_next_date) - new Date()) / (1000 * 60 * 60 * 24));
+  };
+
+  const getGreeting = () => {
+    const h = new Date().getHours();
+    if (h < 12) return 'Selamat Pagi';
+    if (h < 15) return 'Selamat Siang';
+    if (h < 18) return 'Selamat Sore';
+    return 'Selamat Malam';
   };
 
   const daysUntil = getDaysUntil();
   const moodEmojis = ['', '😢', '😔', '😐', '😊', '😄'];
+  const avgCycle = cycles.length > 0
+    ? Math.round(cycles.reduce((s, c) => s + (c.cycle_length || 28), 0) / cycles.length)
+    : null;
+
+  // SVG ring for prediction
+  const ringRadius = 52;
+  const ringCircumference = 2 * Math.PI * ringRadius;
+  const maxDays = prediction?.predicted_cycle_length || 28;
+  const progress = daysUntil !== null ? Math.max(0, 1 - (Math.abs(daysUntil) / maxDays)) : 0;
+  const ringOffset = ringCircumference * (1 - progress);
 
   if (loading) {
     return (
-      <div className="dashboard-page container">
-        <div className="loading-spinner"></div>
+      <div className="dash-loading">
+        <div className="loading-spinner" />
+        <p>Memuat dashboard...</p>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-page container animate-fade-in">
-      <header className="dashboard-header">
-        <h1>📊 Dashboard</h1>
-        <p className="dashboard-date">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+    <div className="dash animate-fade-in">
+      {/* Header */}
+      <header className="dash-header">
+        <div>
+          <h1 className="dash-greeting">
+            {getGreeting()}, <span className="dash-name">{user?.name?.split(' ')[0] || 'User'}</span> 👋
+          </h1>
+          <p className="dash-date">
+            {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </p>
+        </div>
       </header>
 
-      {/* Prediction Card */}
-      <div className="prediction-card glass-card">
-        <div className="prediction-header">
-          <h2>🔮 Next Period Prediction</h2>
+      {/* Prediction Hero Card */}
+      <div className="dash-prediction">
+        <div className="dash-pred-header">
+          <h2>🔮 Prediksi Siklus Berikutnya</h2>
           {prediction?.confidence && (
-            <span className="confidence-badge">
+            <span className="dash-confidence-badge">
               {Math.round(prediction.confidence * 100)}% confidence
             </span>
           )}
         </div>
 
         {prediction?.predicted_next_date ? (
-          <div className="prediction-content">
-            <div className="prediction-main">
-              <div className="prediction-date">
-                <span className="date-label">Expected Date</span>
-                <span className="date-value">
-                  {new Date(prediction.predicted_next_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+          <div className="dash-pred-body">
+            <div className="dash-pred-ring-wrap">
+              <svg viewBox="0 0 120 120" className="dash-ring-svg">
+                <circle cx="60" cy="60" r={ringRadius} className="dash-ring-bg" />
+                <circle
+                  cx="60" cy="60" r={ringRadius}
+                  className="dash-ring-fill"
+                  style={{
+                    strokeDasharray: ringCircumference,
+                    strokeDashoffset: ringOffset,
+                  }}
+                />
+              </svg>
+              <div className="dash-ring-center">
+                <span className="dash-ring-num">{daysUntil !== null ? Math.abs(daysUntil) : '—'}</span>
+                <span className="dash-ring-label">{daysUntil !== null && daysUntil < 0 ? 'hari lalu' : 'hari lagi'}</span>
+              </div>
+            </div>
+
+            <div className="dash-pred-info">
+              <div className="dash-pred-date-row">
+                <span className="dash-pred-label">Tanggal Prediksi</span>
+                <span className="dash-pred-date">
+                  {new Date(prediction.predicted_next_date).toLocaleDateString('id-ID', { month: 'long', day: 'numeric', year: 'numeric' })}
                 </span>
               </div>
-              <div className="prediction-countdown">
-                <span className="countdown-number">{daysUntil !== null ? Math.abs(daysUntil) : '—'}</span>
-                <span className="countdown-label">{daysUntil !== null && daysUntil < 0 ? 'days ago' : 'days left'}</span>
+
+              {prediction.confidence && (
+                <div className="dash-pred-bar-wrap">
+                  <div className="dash-pred-bar-header">
+                    <span>Confidence</span>
+                    <span className="dash-pred-bar-pct">{Math.round(prediction.confidence * 100)}%</span>
+                  </div>
+                  <div className="dash-pred-bar">
+                    <div className="dash-pred-bar-fill" style={{ width: `${prediction.confidence * 100}%` }} />
+                  </div>
+                </div>
+              )}
+
+              <div className="dash-pred-meta">
+                <div className="dash-meta-item">
+                  <span className="dash-meta-icon">📏</span>
+                  <div>
+                    <span className="dash-meta-val">{prediction.predicted_cycle_length || '—'} hari</span>
+                    <span className="dash-meta-label">Panjang Siklus</span>
+                  </div>
+                </div>
+                <div className="dash-meta-item">
+                  <span className="dash-meta-icon">🤖</span>
+                  <div>
+                    <span className="dash-meta-val">{prediction.model_version || 'LSTM'}</span>
+                    <span className="dash-meta-label">Model AI</span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="prediction-meta">
-              <div className="meta-item">
-                <span className="meta-label">Cycle Length</span>
-                <span className="meta-value">{prediction.predicted_cycle_length || '—'} days</span>
-              </div>
-              <div className="meta-item">
-                <span className="meta-label">Model</span>
-                <span className="meta-value">{prediction.model_version || 'N/A'}</span>
-              </div>
-            </div>
-            {prediction.message && (
-              <p className="prediction-message">{prediction.message}</p>
-            )}
           </div>
         ) : (
-          <div className="prediction-empty">
-            <p>📝 Log your cycles to get AI-powered predictions!</p>
+          <div className="dash-pred-empty">
+            <div className="dash-pred-empty-icon">📝</div>
+            <p>Catat siklus pertamamu untuk mendapatkan prediksi AI!</p>
             <button className="btn btn-primary btn-sm" onClick={() => navigate('/cycle')}>
-              Add First Cycle
+              Tambah Siklus Pertama
             </button>
           </div>
         )}
       </div>
 
       {/* Quick Actions */}
-      <div className="quick-actions">
-        <button className="action-card glass-card" onClick={() => navigate('/cycle')}>
-          <span className="action-icon">🔄</span>
-          <span className="action-label">Log Cycle</span>
-        </button>
-        <button className="action-card glass-card" onClick={() => navigate('/daily-log')}>
-          <span className="action-icon">📝</span>
-          <span className="action-label">Daily Log</span>
-        </button>
-        <button className="action-card glass-card" onClick={() => navigate('/calendar')}>
-          <span className="action-icon">📅</span>
-          <span className="action-label">Calendar</span>
-        </button>
-        <button className="action-card glass-card" onClick={() => navigate('/profile')}>
-          <span className="action-icon">⚙️</span>
-          <span className="action-label">Settings</span>
-        </button>
+      <div className="dash-actions">
+        {[
+          { icon: '🔄', label: 'Log Siklus', path: '/cycle', color: '#ec4899' },
+          { icon: '📝', label: 'Log Harian', path: '/daily-log', color: '#a855f7' },
+          { icon: '📅', label: 'Kalender', path: '/calendar', color: '#6366f1' },
+          { icon: '⚙️', label: 'Pengaturan', path: '/profile', color: '#10b981' },
+        ].map(a => (
+          <button key={a.label} className="dash-action-card" onClick={() => navigate(a.path)}>
+            <span className="dash-action-icon" style={{ '--action-color': a.color }}>{a.icon}</span>
+            <span className="dash-action-label">{a.label}</span>
+          </button>
+        ))}
       </div>
 
-      {/* Stats Grid */}
-      <div className="stats-grid">
-        <div className="stat-card glass-card">
-          <span className="stat-icon">📊</span>
-          <span className="stat-value">{cycles.length}</span>
-          <span className="stat-label">Cycles Logged</span>
+      {/* Stats */}
+      <div className="dash-stats">
+        <div className="dash-stat-card">
+          <span className="dash-stat-emoji">📊</span>
+          <span className="dash-stat-num">{cycles.length}</span>
+          <span className="dash-stat-text">Siklus Tercatat</span>
+          <div className="dash-stat-bar" style={{ '--bar-pct': `${Math.min(cycles.length * 10, 100)}%`, '--bar-color': '#ec4899' }} />
         </div>
-        <div className="stat-card glass-card">
-          <span className="stat-icon">📝</span>
-          <span className="stat-value">{recentLogs.length > 0 ? recentLogs.length + '+' : '0'}</span>
-          <span className="stat-label">Daily Logs</span>
+        <div className="dash-stat-card">
+          <span className="dash-stat-emoji">📝</span>
+          <span className="dash-stat-num">{recentLogs.length > 0 ? recentLogs.length + '+' : '0'}</span>
+          <span className="dash-stat-text">Log Harian</span>
+          <div className="dash-stat-bar" style={{ '--bar-pct': `${Math.min(recentLogs.length * 15, 100)}%`, '--bar-color': '#a855f7' }} />
         </div>
-        <div className="stat-card glass-card">
-          <span className="stat-icon">📏</span>
-          <span className="stat-value">
-            {cycles.length > 0 ? Math.round(cycles.reduce((s, c) => s + (c.cycle_length || 28), 0) / cycles.length) : '—'}
-          </span>
-          <span className="stat-label">Avg Cycle (days)</span>
+        <div className="dash-stat-card">
+          <span className="dash-stat-emoji">📏</span>
+          <span className="dash-stat-num">{avgCycle || '—'}</span>
+          <span className="dash-stat-text">Rata-rata Siklus</span>
+          <div className="dash-stat-bar" style={{ '--bar-pct': `${avgCycle ? Math.min((avgCycle / 35) * 100, 100) : 0}%`, '--bar-color': '#6366f1' }} />
         </div>
       </div>
 
-      {/* Recent Activity */}
-      {recentLogs.length > 0 && (
-        <div className="recent-section glass-card">
-          <h3>📋 Recent Daily Logs</h3>
-          <div className="recent-list">
-            {recentLogs.map(log => (
-              <div key={log.id} className="recent-item">
-                <span className="recent-date">{new Date(log.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                <span className="recent-mood">{moodEmojis[log.mood] || '😐'}</span>
-                <span className="recent-sleep">💤 {log.sleep_quality || '—'}/5</span>
-                <span className="recent-stress">😰 {log.stress_level || '—'}/5</span>
-                {log.is_fasting ? <span className="recent-fasting">🕌</span> : null}
+      {/* Two Column: Recent Logs + Tips */}
+      <div className="dash-two-col">
+        {/* Recent Logs */}
+        <div className="dash-card">
+          <h3 className="dash-card-title">📋 Log Terakhir</h3>
+          {recentLogs.length > 0 ? (
+            <div className="dash-log-list">
+              {recentLogs.map(log => (
+                <div key={log.id} className="dash-log-item">
+                  <div className="dash-log-date">
+                    {new Date(log.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                  </div>
+                  <span className="dash-log-mood">{moodEmojis[log.mood] || '😐'}</span>
+                  <div className="dash-log-details">
+                    <span>💤 {log.sleep_quality || '—'}/5</span>
+                    <span>😰 {log.stress_level || '—'}/5</span>
+                    {log.is_fasting ? <span>🕌</span> : null}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="dash-empty-msg">
+              <p>Belum ada log harian. <button className="dash-link" onClick={() => navigate('/daily-log')}>Buat sekarang →</button></p>
+            </div>
+          )}
+        </div>
+
+        {/* Health Tips */}
+        <div className="dash-card">
+          <h3 className="dash-card-title">💡 Tips Kesehatan</h3>
+          <div className="dash-tips">
+            {[
+              { icon: '🌿', text: 'Olahraga teratur membantu mengurangi kram menstruasi dan memperbaiki mood selama siklus.' },
+              { icon: '💧', text: 'Minum cukup air membantu mengurangi kembung dan kelelahan selama menstruasi.' },
+              { icon: '😴', text: 'Tidur 7-9 jam berkualitas, terutama selama fase luteal siklus menstruasimu.' },
+            ].map((tip, i) => (
+              <div key={i} className="dash-tip">
+                <span className="dash-tip-icon">{tip.icon}</span>
+                <p>{tip.text}</p>
               </div>
             ))}
-          </div>
-        </div>
-      )}
-
-      {/* Health Tips */}
-      <div className="tips-section glass-card">
-        <h3>💡 Health Insights</h3>
-        <div className="tips-list">
-          <div className="tip-item">
-            <span className="tip-icon">🌿</span>
-            <p>Regular exercise can help reduce menstrual cramps and improve mood during your cycle.</p>
-          </div>
-          <div className="tip-item">
-            <span className="tip-icon">💧</span>
-            <p>Stay hydrated! Drinking enough water helps reduce bloating and fatigue during menstruation.</p>
-          </div>
-          <div className="tip-item">
-            <span className="tip-icon">😴</span>
-            <p>Aim for 7-9 hours of quality sleep, especially during the luteal phase of your cycle.</p>
           </div>
         </div>
       </div>

@@ -1,12 +1,19 @@
+/* ═══════════════════════════════════════════════════════════
+   NAVBAR — YeoCycles Premium Navigation
+   ═══════════════════════════════════════════════════════════ */
+
 .navbar {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(236, 72, 153, 0.1);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(236, 72, 153, 0.08);
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.02),
+    0 8px 32px rgba(236, 72, 153, 0.04);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .navbar-container {
@@ -15,33 +22,47 @@
   padding: 0 24px;
   display: flex;
   align-items: center;
-  height: 64px;
+  height: 68px;
   gap: 32px;
 }
 
+/* ─── Brand ─── */
 .navbar-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   text-decoration: none;
-  font-weight: 800;
-  font-size: 1.3rem;
-  color: var(--primary-600);
   flex-shrink: 0;
+  transition: transform 0.2s ease;
 }
 
-.brand-icon {
-  font-size: 1.5rem;
-  animation: float 3s ease-in-out infinite;
+.navbar-brand:hover {
+  transform: scale(1.02);
+}
+
+.brand-logo {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(236, 72, 153, 0.2));
+  transition: filter 0.3s ease;
+}
+
+.navbar-brand:hover .brand-logo {
+  filter: drop-shadow(0 4px 12px rgba(236, 72, 153, 0.35));
 }
 
 .brand-text {
-  background: var(--gradient-primary);
+  font-size: 1.25rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #6366f1 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  letter-spacing: -0.5px;
 }
 
+/* ─── Nav Links ─── */
 .navbar-links {
   display: flex;
   align-items: center;
@@ -53,36 +74,77 @@
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
+  gap: 7px;
+  padding: 8px 16px;
   border-radius: var(--radius-md);
   text-decoration: none;
   color: var(--gray-500);
   font-weight: 500;
-  font-size: 0.9rem;
-  transition: all var(--transition-fast);
+  font-size: 0.88rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2.5px;
+  background: linear-gradient(90deg, #ec4899, #a855f7);
+  border-radius: 2px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(-50%);
 }
 
 .nav-link:hover {
   color: var(--primary-600);
-  background: var(--primary-50);
+  background: rgba(236, 72, 153, 0.04);
+}
+
+.nav-link:hover::after {
+  width: 60%;
 }
 
 .nav-link.active {
   color: var(--primary-700);
-  background: var(--primary-100);
   font-weight: 600;
 }
 
-.nav-icon {
-  font-size: 1.1rem;
+.nav-link.active::after {
+  width: 80%;
 }
 
+.nav-icon {
+  font-size: 1.05rem;
+}
+
+/* ─── User Section ─── */
 .navbar-user {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   flex-shrink: 0;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: white;
+  box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3);
 }
 
 .user-greeting {
@@ -92,39 +154,62 @@
 }
 
 .btn-logout {
-  padding: 6px 16px;
-  border: 2px solid var(--primary-200);
+  padding: 7px 18px;
+  border: 1.5px solid rgba(236, 72, 153, 0.2);
   border-radius: var(--radius-full);
   background: transparent;
-  color: var(--primary-600);
+  color: var(--gray-500);
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: var(--font-sans);
+  letter-spacing: 0.02em;
 }
 
 .btn-logout:hover {
-  background: var(--primary-500);
+  background: linear-gradient(135deg, #ec4899, #a855f7);
   color: white;
-  border-color: var(--primary-500);
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(236, 72, 153, 0.3);
+  transform: translateY(-1px);
 }
 
+/* ─── Responsive ─── */
 @media (max-width: 768px) {
   .navbar-container {
     padding: 0 12px;
-    gap: 12px;
+    gap: 8px;
+    height: 60px;
+  }
+
+  .brand-text {
+    display: none;
+  }
+
+  .brand-logo {
+    height: 32px;
   }
 
   .nav-link span:last-child {
     display: none;
   }
 
-  .nav-icon {
-    font-size: 1.3rem;
+  .nav-link {
+    padding: 8px 10px;
   }
 
-  .user-greeting {
+  .nav-icon {
+    font-size: 1.25rem;
+  }
+
+  .user-greeting,
+  .user-info {
     display: none;
+  }
+
+  .btn-logout {
+    padding: 6px 14px;
+    font-size: 0.75rem;
   }
 }

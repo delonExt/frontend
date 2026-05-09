@@ -37,11 +37,18 @@ export default function CalendarPage() {
   const goToNextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
   const goToToday = () => setCurrentDate(new Date());
 
+  // Normalize any date value (Date object, ISO string, etc.) to "YYYY-MM-DD"
+  const toDateStr = (val) => {
+    if (!val) return '';
+    if (typeof val === 'string' && val.length === 10) return val;
+    return new Date(val).toISOString().split('T')[0];
+  };
+
   const isInPeriod = (dateStr) => {
     return cycles.some(c => {
-      const start = new Date(c.start_date);
+      const start = new Date(toDateStr(c.start_date));
       const end = c.end_date
-        ? new Date(c.end_date)
+        ? new Date(toDateStr(c.end_date))
         : new Date(start.getTime() + (c.period_length || 5) * 86400000);
       const d = new Date(dateStr);
       return d >= start && d <= end;
@@ -50,14 +57,14 @@ export default function CalendarPage() {
 
   const isPredicted = (dateStr) => {
     if (!prediction?.predicted_next_date) return false;
-    const predDate = new Date(prediction.predicted_next_date);
+    const predDate = new Date(toDateStr(prediction.predicted_next_date));
     const d = new Date(dateStr);
     const predEnd = new Date(predDate.getTime() + 5 * 86400000);
     return d >= predDate && d <= predEnd;
   };
 
   const hasLog = (dateStr) => {
-    return dailyLogs.some(l => l.date === dateStr);
+    return dailyLogs.some(l => toDateStr(l.date) === dateStr);
   };
 
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
