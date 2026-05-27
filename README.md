@@ -1,12 +1,12 @@
-<![CDATA[<div align="center">
+<div align="center">
 
 # 🌸 YeoCycles — Frontend
 
 ### Menstrual Health Companion · Single Page Application
 
-[![React](https://img.shields.io/badge/React-19.1-61DAFB?logo=react&logoColor=white)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-8.0-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-19.0-61DAFB?logo=react&logoColor=white)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-5.4-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
+[![JavaScript](https://img.shields.io/badge/JavaScript-ES2022-F7DF1E?logo=javascript&logoColor=black)](https://developer.mozilla.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 **Antarmuka premium modern** untuk melacak siklus menstruasi, mencatat kondisi harian, dan melihat prediksi AI — dibangun dengan **React + Vite** serta desain **glassmorphism** yang interaktif.
@@ -273,9 +273,9 @@ sequenceDiagram
 
 | Technology           | Version | Purpose                              |
 | -------------------- | ------- | ------------------------------------ |
-| **React**            | 19.1    | UI Library (Hooks, Context, Router)  |
-| **Vite**             | 8.0     | Build tool & dev server (HMR)        |
-| **TypeScript**       | 5.9     | Type safety & DX                     |
+| **React**            | 19.0    | UI Library (Hooks, Context, Router)  |
+| **Vite**             | 5.4     | Build tool & dev server (HMR)        |
+| **JavaScript (ES2022)** | —    | Modern JS with JSX                   |
 | **React Router**     | 7.x     | Client-side routing & route guards   |
 | **Axios**            | 1.x     | HTTP client with interceptors        |
 | **Vanilla CSS**      | —       | Custom styling (no framework)        |
@@ -329,8 +329,7 @@ npm run preview
 frontend/
 ├── package.json                 # Dependencies & scripts
 ├── index.html                   # HTML entry point (SPA shell)
-├── tsconfig.json                # TypeScript configuration
-├── vite.config.ts               # Vite build configuration
+├── vite.config.js               # Vite build configuration
 ├── docs/
 │   └── images/                  # Documentation visuals
 ├── public/
@@ -539,4 +538,4 @@ npm run preview      # Preview production locally
 Dibuat oleh **Ridho dan teman-teman** — Capstone Project Coding Camp 2026
 
 **Powered by [kamidukung.biz.id](https://kamidukung.biz.id/)**
-]]>
+
