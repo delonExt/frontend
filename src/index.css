@@ -492,3 +492,26 @@ textarea.form-input {
     font-size: 0.85rem;
   }
 }
+
+/* ─── Safe Area & Premium Mobile Tweaks ─── */
+@supports (padding: env(safe-area-inset-bottom)) {
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .lp-chatbot-widget {
+    bottom: calc(24px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Global Touch Targets minimum size for accessibility */
+button, 
+a, 
+input, 
+select, 
+textarea {
+  min-height: 38px;
+}
+
+.btn {
+  min-height: 44px;
+}
