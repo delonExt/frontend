@@ -1,40 +1,325 @@
-# 🖥️ Frontend — Menstrual Health Companion
+<![CDATA[<div align="center">
 
-Single Page Application (SPA) dibangun dengan **React** dan **Vite**, menyediakan antarmuka interaktif untuk melacak siklus menstruasi, mencatat kondisi harian, dan melihat prediksi AI.
+# 🌸 YeoCycles — Frontend
+
+### Menstrual Health Companion · Single Page Application
+
+[![React](https://img.shields.io/badge/React-19.1-61DAFB?logo=react&logoColor=white)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-8.0-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+**Antarmuka premium modern** untuk melacak siklus menstruasi, mencatat kondisi harian, dan melihat prediksi AI — dibangun dengan **React + Vite** serta desain **glassmorphism** yang interaktif.
+
+[Fitur Utama](#-fitur-utama) · [Arsitektur](#️-arsitektur-sistem) · [Quick Start](#-quick-start) · [Pages Overview](#-pages-overview) · [API Integration](#-api-integration)
+
+</div>
+
+---
+
+## 🏗️ Arsitektur Sistem
+
+### Full-Stack Overview
+
+Berikut adalah arsitektur keseluruhan sistem **YeoCycles** yang menunjukkan bagaimana Frontend berinteraksi dengan Backend dan ML Service:
+
+<p align="center">
+  <img src="docs/images/system_architecture.png" alt="System Architecture" width="700" />
+</p>
+
+### Frontend Internal Architecture
+
+```mermaid
+graph TB
+    subgraph Browser["🌐 Browser (Client)"]
+        direction TB
+        
+        subgraph PublicRoutes["Public Routes"]
+            LP["🏠 LandingPage<br/>Hero, Features, Game, Chatbot"]
+            Login["🔑 LoginPage<br/>Glassmorphism Form"]
+            Register["📝 RegisterPage<br/>Glassmorphism Form"]
+        end
+
+        subgraph ProtectedRoutes["🔒 Protected Routes"]
+            Dashboard["📊 Dashboard<br/>Charts, Ring, Cards, Tips"]
+            Calendar["📅 CalendarPage<br/>Interactive Month View"]
+            CycleForm["🩸 CycleForm<br/>Cycle Data Input"]
+            DailyLog["📋 DailyLogForm<br/>Mood, Symptoms, Sleep"]
+            Profile["👤 ProfilePage<br/>User Settings"]
+        end
+
+        subgraph SharedComponents["Shared Components"]
+            Navbar["🧭 Navbar<br/>Sidebar + Mobile Drawer"]
+            AuthCtx["🔐 AuthContext<br/>JWT Token Management"]
+        end
+
+        subgraph Services["Services Layer"]
+            API["🌐 api.js<br/>Axios Instance + Interceptors"]
+        end
+    end
+
+    LP --> Login
+    Login --> AuthCtx
+    Register --> AuthCtx
+    AuthCtx --> API
+    Dashboard --> API
+    Calendar --> API
+    CycleForm --> API
+    DailyLog --> API
+    Profile --> API
+    Navbar --> AuthCtx
+
+    API -->|"HTTP + JWT Bearer Token"| Backend["⚙️ Backend API<br/>localhost:5000"]
+
+    style PublicRoutes fill:#1a1a2e,stroke:#ec4899,color:#fff
+    style ProtectedRoutes fill:#1a1a2e,stroke:#a855f7,color:#fff
+    style SharedComponents fill:#1a1a2e,stroke:#6366f1,color:#fff
+    style Services fill:#1a1a2e,stroke:#10b981,color:#fff
+```
+
+### Component Dependency Graph
+
+```mermaid
+graph LR
+    main["main.jsx"] --> App["App.jsx"]
+    App --> AuthProvider["AuthProvider"]
+    AuthProvider --> Router["BrowserRouter"]
+    
+    Router --> PublicRoute["PublicRoute Guard"]
+    Router --> ProtectedRoute["ProtectedRoute Guard"]
+    
+    PublicRoute --> Landing["LandingPage"]
+    PublicRoute --> Login["LoginPage"]
+    PublicRoute --> Register["RegisterPage"]
+    
+    ProtectedRoute --> Navbar["Navbar"]
+    ProtectedRoute --> Dashboard["Dashboard"]
+    ProtectedRoute --> Calendar["CalendarPage"]
+    ProtectedRoute --> Cycle["CycleForm"]
+    ProtectedRoute --> Daily["DailyLogForm"]
+    ProtectedRoute --> Profile["ProfilePage"]
+    
+    Landing --> Chatbot["Siska Chatbot"]
+    Landing --> Game["Myth-Buster Game"]
+    
+    Dashboard --> ProgressRing["SVG Progress Ring"]
+    Dashboard --> MiniChart["5-Cycle Sparkline"]
+    Dashboard --> TipsCarousel["Tips Carousel"]
+    
+    Navbar --> Drawer["Mobile Drawer"]
+    
+    Login --> api["api.js"]
+    Register --> api
+    Dashboard --> api
+    Calendar --> api
+    Cycle --> api
+    Daily --> api
+    Profile --> api
+
+    style Landing fill:#ec4899,stroke:#fff,color:#fff
+    style Dashboard fill:#a855f7,stroke:#fff,color:#fff
+    style Chatbot fill:#6366f1,stroke:#fff,color:#fff
+    style Game fill:#f59e0b,stroke:#fff,color:#fff
+```
+
+---
+
+## ✨ Fitur Utama
+
+### 🏠 Landing Page — Premium Experience
+
+<p align="center">
+  <img src="docs/images/landing_page.png" alt="Landing Page" width="600" />
+</p>
+
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Hero Section** | Gradient animation dengan floating geometric shapes |
+| **Feature Cards** | Hover lift effects dengan glassmorphic cards |
+| **Edukasi Interaktif** | Menstrual education section dengan accordion cards |
+| **Cycle Myth-Buster Game** 🎮 | Quiz 10 pertanyaan, progress bar, score tracker, confetti, penjelasan ilmiah |
+| **Siska AI Chatbot** 🤖 | Keyword-based NLP, strict topic filter, typing animation |
+| **Footer** | "Powered by kamidukung.biz.id" dengan gradient link |
+| **Mobile Nav** | Hamburger slide-in overlay + backdrop blur |
+
+#### Chatbot Siska — Alur Kerja
+
+```mermaid
+sequenceDiagram
+    participant U as 👤 User
+    participant C as 🤖 Siska Chatbot
+    participant KB as 📚 Knowledge Base
+
+    U->>C: Mengetik pertanyaan
+    C->>C: Analisis keyword (regex matching)
+    
+    alt Topik: Menstruasi/Haid/PMS/Ovulasi/dll
+        C->>KB: Cari jawaban dari database
+        KB-->>C: Return respons medis
+        C-->>U: 💬 Jawaban + typing animation
+    else Topik: "Siapa yang buat?"
+        C-->>U: "Dibuat oleh Ridho dan teman-teman,<br/>powered by kamidukung"
+    else Topik: Di luar kesehatan menstruasi
+        C-->>U: "Maaf, saya hanya bisa menjawab<br/>pertanyaan seputar kesehatan menstruasi 🌸"
+    end
+```
+
+#### Myth-Buster Game — Flow
+
+```mermaid
+stateDiagram-v2
+    [*] --> Idle: Game belum dimulai
+    Idle --> Playing: Klik "Mulai Game"
+    
+    Playing --> ShowQuestion: Load pertanyaan ke-N
+    ShowQuestion --> AnswerSelected: User pilih True/False
+    AnswerSelected --> ShowExplanation: Tampilkan penjelasan ilmiah
+    ShowExplanation --> ShowQuestion: Next question (N < 10)
+    ShowExplanation --> GameOver: N = 10
+    
+    GameOver --> ShowScore: Tampilkan skor akhir
+    ShowScore --> ConfettiAnimation: Skor sempurna? 🎉
+    ShowScore --> Idle: Klik "Main Lagi"
+    ConfettiAnimation --> Idle: Klik "Main Lagi"
+```
+
+---
+
+### 🔐 Auth Pages — Glassmorphism Design
+
+<p align="center">
+  <img src="docs/images/auth_page.png" alt="Auth Page" width="500" />
+</p>
+
+| Teknik | Implementasi |
+|--------|-------------|
+| **Glassmorphism** | `backdrop-filter: blur(20px)` + `rgba(255,255,255,0.08)` |
+| **Animated Blobs** | CSS `@keyframes blob-morph` — 8s infinite morphing |
+| **Gradient Border** | Linear gradient border via pseudo-elements |
+| **Input Glow** | Focus state dengan `box-shadow: 0 0 20px rgba(236,72,153,0.3)` |
+| **Password Toggle** | Eye icon toggle visibility |
+| **Loading State** | Spinner animation saat submit |
+
+---
+
+### 📊 Dashboard — Interactive Data Visualization
+
+<p align="center">
+  <img src="docs/images/dashboard.png" alt="Dashboard" width="600" />
+</p>
+
+```mermaid
+graph TB
+    subgraph Dashboard["📊 Dashboard Page"]
+        direction TB
+        Welcome["👋 Welcome Animation<br/>Staggered fade-in entrance"]
+        
+        subgraph TopRow["Top Section"]
+            Ring["🔮 Cycle Progress Ring<br/>Animated SVG, glow effect<br/>Shows Day X of Y"]
+            Cards["📊 Quick Insight Cards<br/>4 metrics: Cycle Day, ETA,<br/>Avg Length, Total Logs"]
+            Chart["📈 5-Cycle Mini Chart<br/>Inline SVG sparkline<br/>Last 5 cycle lengths"]
+        end
+        
+        subgraph BottomRow["Bottom Section"]
+            Tips["💡 Tips Carousel<br/>Auto-rotate 5s interval<br/>Health tips slider"]
+            Actions["⚡ Quick Actions<br/>Shortcut buttons to<br/>Cycle, Log, Calendar"]
+        end
+    end
+
+    Welcome --> TopRow
+    TopRow --> BottomRow
+    
+    style Dashboard fill:#0f0f23,stroke:#a855f7,color:#fff
+    style TopRow fill:#1a1a2e,stroke:#ec4899,color:#fff
+    style BottomRow fill:#1a1a2e,stroke:#6366f1,color:#fff
+```
+
+**Dashboard Data Flow:**
+
+```mermaid
+sequenceDiagram
+    participant D as 📊 Dashboard
+    participant A as 🌐 API Service
+    participant B as ⚙️ Backend
+
+    D->>D: componentDidMount → useEffect
+    
+    par Parallel API Calls
+        D->>A: GET /api/cycles
+        A->>B: Fetch user cycles
+        B-->>A: cycles[]
+        A-->>D: Update cycle state
+    and
+        D->>A: GET /api/predictions
+        A->>B: Fetch/generate prediction
+        B-->>A: prediction{}
+        A-->>D: Update prediction state
+    and
+        D->>A: GET /api/daily-logs
+        A->>B: Fetch user logs
+        B-->>A: logs[]
+        A-->>D: Update logs state
+    end
+    
+    D->>D: Render Progress Ring (SVG)
+    D->>D: Render Insight Cards
+    D->>D: Render Mini Chart (SVG sparkline)
+    D->>D: Start Tips Carousel (setInterval 5s)
+```
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Technology           | Purpose                       |
-| -------------------- | ----------------------------- |
-| **React 18+**        | UI Library                    |
-| **Vite 8.0**         | Build tool & dev server (HMR) |
-| **TypeScript 5.9**   | Type safety                   |
-| **React Router 7.x** | Client-side routing           |
-| **Axios 1.x**        | HTTP client for API calls     |
-| **CSS Modules**      | Component-scoped styling      |
+| Technology           | Version | Purpose                              |
+| -------------------- | ------- | ------------------------------------ |
+| **React**            | 19.1    | UI Library (Hooks, Context, Router)  |
+| **Vite**             | 8.0     | Build tool & dev server (HMR)        |
+| **TypeScript**       | 5.9     | Type safety & DX                     |
+| **React Router**     | 7.x     | Client-side routing & route guards   |
+| **Axios**            | 1.x     | HTTP client with interceptors        |
+| **Vanilla CSS**      | —       | Custom styling (no framework)        |
+
+### Design Techniques
+
+| Technique | Implementation |
+|-----------|---------------|
+| **Glassmorphism** | `backdrop-filter: blur()` + semi-transparent backgrounds |
+| **CSS Custom Properties** | Design tokens for consistent theming |
+| **CSS Animations** | `@keyframes` — floating shapes, fade-ins, slide-ins |
+| **SVG Graphics** | Inline SVGs — charts, progress rings, decorative elements |
+| **CSS Grid + Flexbox** | Responsive layouts without media query complexity |
+| **Mobile-First** | All styles built from `320px` upward |
 
 ---
 
 ## 🚀 Quick Start
 
+### Prerequisites
+
+- **Node.js** ≥ 18.x · **npm** ≥ 9.x
+- Backend API at `http://localhost:5000` ([Backend Repo](https://github.com/Coding-Camp-Capstone-Project-2026/backend))
+
 ```bash
-# Install dependencies
+# 1. Clone repository
+git clone https://github.com/Coding-Camp-Capstone-Project-2026/frontend.git
+cd frontend
+
+# 2. Install dependencies
 npm install
 
-# Start development server (HMR)
+# 3. Start development server (HMR)
 npm run dev
 # → http://localhost:5173
 
-# Build for production
+# 4. Build for production
 npm run build
 
-# Preview production build
+# 5. Preview production build
 npm run preview
 ```
 
-> **Note**: Pastikan Backend API (`http://localhost:5000`) sudah berjalan sebelum menggunakan frontend.
+> **⚠️ Penting**: Pastikan Backend API dan ML Service sudah berjalan sebelum menggunakan fitur prediksi.
 
 ---
 
@@ -42,164 +327,216 @@ npm run preview
 
 ```
 frontend/
-├── package.json             # Dependencies & scripts
-├── index.html               # HTML entry point
-├── tsconfig.json            # TypeScript configuration
+├── package.json                 # Dependencies & scripts
+├── index.html                   # HTML entry point (SPA shell)
+├── tsconfig.json                # TypeScript configuration
+├── vite.config.ts               # Vite build configuration
+├── docs/
+│   └── images/                  # Documentation visuals
 ├── public/
-│   ├── favicon.svg          # App icon
-│   └── icons.svg            # Icon sprites
+│   ├── favicon.svg              # App favicon
+│   └── icons.svg                # SVG icon sprites
 └── src/
-    ├── App.jsx              # 🏠 Root component, routing, guards
-    ├── main.jsx             # 🚀 React entry point
-    ├── index.css            # 🎨 Global styles
-    │
+    ├── main.jsx                 # 🚀 React entry point
+    ├── App.jsx                  # 🏠 Root — routing & auth guards
+    ├── index.css                # 🎨 Global styles, CSS vars, resets
     ├── context/
-    │   └── AuthContext.jsx  # 🔐 Authentication state (token, user)
-    │
+    │   └── AuthContext.jsx      # 🔐 Auth state provider
     ├── components/
-    │   ├── Navbar.jsx       # 🧭 Navigation bar
-    │   └── Navbar.css       # Navbar styling
-    │
+    │   ├── Navbar.jsx           # 🧭 Nav + mobile drawer
+    │   └── Navbar.css           # Sidebar & drawer styles
     ├── pages/
-    │   ├── LoginPage.jsx    # 🔑 Login form
-    │   ├── RegisterPage.jsx # 📝 Registration form
-    │   ├── Dashboard.jsx    # 📊 Main dashboard
-    │   ├── Dashboard.css    # Dashboard styling
-    │   ├── CalendarPage.jsx # 📅 Calendar view
-    │   ├── CalendarPage.css # Calendar styling
-    │   ├── CycleForm.jsx    # 🩸 Menstrual cycle input
-    │   ├── DailyLogForm.jsx # 📋 Daily health log form
-    │   ├── ProfilePage.jsx  # 👤 User profile
-    │   ├── ProfilePage.css  # Profile styling
-    │   ├── Auth.css         # Auth pages styling
-    │   └── FormPage.css     # Form pages styling
-    │
+    │   ├── LandingPage.jsx      # 🏠 Hero, features, game, chatbot
+    │   ├── LandingPage.css      # Landing animations (53KB)
+    │   ├── LoginPage.jsx        # 🔑 Login form
+    │   ├── RegisterPage.jsx     # 📝 Registration form
+    │   ├── Auth.css             # Glassmorphic auth styling
+    │   ├── Dashboard.jsx        # 📊 Charts, ring, cards
+    │   ├── Dashboard.css        # Dashboard animations
+    │   ├── CalendarPage.jsx     # 📅 Interactive calendar
+    │   ├── CalendarPage.css     # Calendar grid
+    │   ├── CycleForm.jsx        # 🩸 Cycle input form
+    │   ├── DailyLogForm.jsx     # 📋 Daily health log
+    │   ├── FormPage.css         # Shared form styling
+    │   ├── ProfilePage.jsx      # 👤 Profile management
+    │   └── ProfilePage.css      # Profile styling
     └── services/
-        └── api.js           # 🌐 Axios instance & interceptors
+        └── api.js               # 🌐 Axios instance & interceptors
 ```
 
 ---
 
 ## 🗺️ Routing
 
-| Path         | Component      | Auth         | Description        |
-| ------------ | -------------- | ------------ | ------------------ |
-| `/login`     | `LoginPage`    | Public       | Halaman login      |
-| `/register`  | `RegisterPage` | Public       | Halaman registrasi |
-| `/`          | `Dashboard`    | 🔒 Protected | Dashboard utama    |
-| `/calendar`  | `CalendarPage` | 🔒 Protected | Kalender siklus    |
-| `/cycle`     | `CycleForm`    | 🔒 Protected | Form input siklus  |
-| `/daily-log` | `DailyLogForm` | 🔒 Protected | Form log harian    |
-| `/profile`   | `ProfilePage`  | 🔒 Protected | Profil pengguna    |
+```mermaid
+graph LR
+    subgraph Public["🔓 Public Routes"]
+        Landing["/landing<br/>LandingPage"]
+        LoginR["/login<br/>LoginPage"]
+        RegisterR["/register<br/>RegisterPage"]
+    end
+    
+    subgraph Protected["🔒 Protected Routes"]
+        DashR["/ <br/>Dashboard"]
+        CalR["/calendar<br/>CalendarPage"]
+        CycR["/cycle<br/>CycleForm"]
+        DaiR["/daily-log<br/>DailyLogForm"]
+        ProR["/profile<br/>ProfilePage"]
+    end
+    
+    Landing -->|"Login/Register"| LoginR
+    LoginR -->|"Success"| DashR
+    RegisterR -->|"Success"| DashR
+    
+    DashR --> CalR
+    DashR --> CycR
+    DashR --> DaiR
+    DashR --> ProR
+    
+    style Public fill:#1a1a2e,stroke:#10b981,color:#fff
+    style Protected fill:#1a1a2e,stroke:#ec4899,color:#fff
+```
 
-### Route Guards
-
-- **`ProtectedRoute`** — Redirect ke `/login` jika belum login
-- **`PublicRoute`** — Redirect ke `/` jika sudah login
+| Path | Component | Auth | Description |
+|------|-----------|------|-------------|
+| `/landing` | `LandingPage` | Public | Landing page (hero, game, chatbot) |
+| `/login` | `LoginPage` | Public | Halaman login |
+| `/register` | `RegisterPage` | Public | Halaman registrasi |
+| `/` | `Dashboard` | 🔒 Protected | Dashboard utama |
+| `/calendar` | `CalendarPage` | 🔒 Protected | Kalender siklus interaktif |
+| `/cycle` | `CycleForm` | 🔒 Protected | Form input siklus |
+| `/daily-log` | `DailyLogForm` | 🔒 Protected | Form log harian |
+| `/profile` | `ProfilePage` | 🔒 Protected | Profil pengguna |
 
 ---
 
-## 🔐 State Management
+## 🔐 State Management — AuthContext
 
-### AuthContext
+```mermaid
+sequenceDiagram
+    participant U as 👤 User
+    participant LP as 🔑 LoginPage
+    participant AC as 🔐 AuthContext
+    participant LS as 💾 localStorage
+    participant AX as 🌐 Axios
+    participant BE as ⚙️ Backend
 
-Centralized authentication state menggunakan React Context API:
+    U->>LP: Submit email + password
+    LP->>AX: POST /api/auth/login
+    AX->>BE: Forward request
+    BE-->>AX: { token, user }
+    AX-->>LP: Response
+    LP->>AC: login(token, user)
+    AC->>LS: setItem('token', token)
+    AC->>AC: setState({ token, user })
+    AC-->>LP: Redirect to Dashboard
 
-```jsx
-// Provides: { token, user, login, logout, loading }
-<AuthProvider>
-  <App />
-</AuthProvider>
+    Note over AX: Setiap request berikutnya:
+    AX->>AX: Attach "Authorization: Bearer <token>"
+    
+    Note over AX,BE: Jika token expired (401/403):
+    BE-->>AX: 401 Unauthorized
+    AX->>AC: logout()
+    AC->>LS: removeItem('token')
+    AC-->>U: Redirect to /login
 ```
-
-| State                | Type             | Description                              |
-| -------------------- | ---------------- | ---------------------------------------- |
-| `token`              | `string \| null` | JWT token dari localStorage              |
-| `user`               | `object \| null` | Data user (id, name, email)              |
-| `loading`            | `boolean`        | Auth state loading indicator             |
-| `login(token, user)` | `function`       | Set token & user, simpan ke localStorage |
-| `logout()`           | `function`       | Clear token & user, redirect ke login    |
 
 ---
 
 ## 🌐 API Integration
 
-### API Service (`services/api.js`)
+### API Endpoints per Page
 
-Axios instance yang dikonfigurasi untuk berkomunikasi dengan backend:
+| Page | Method | Endpoint | Description |
+|------|--------|----------|-------------|
+| **LoginPage** | POST | `/api/auth/login` | Autentikasi |
+| **RegisterPage** | POST | `/api/auth/register` | Registrasi |
+| **Dashboard** | GET | `/api/cycles` | Data siklus |
+| | GET | `/api/predictions` | Prediksi ML |
+| | GET | `/api/daily-logs` | Daily logs |
+| **CalendarPage** | GET | `/api/cycles` | Data siklus |
+| | GET | `/api/daily-logs?start=&end=` | Filter range |
+| **CycleForm** | POST/PUT | `/api/cycles` | CRUD siklus |
+| **DailyLogForm** | POST | `/api/daily-logs` | Tambah log |
+| **ProfilePage** | GET/PUT | `/api/profile` | CRUD profil |
 
-```javascript
-// Base URL: http://localhost:5000/api
-// Auto-attach Authorization header dari localStorage
-// Response interceptor: auto-logout on 401/403
+---
+
+## 🎨 Design System
+
+### Color Palette
+
+```css
+--primary: #ec4899;      /* Pink */
+--secondary: #a855f7;    /* Purple */
+--accent: #6366f1;       /* Indigo */
+--bg-dark: #0f0f23;      /* Navy background */
+--surface: #1a1a2e;      /* Card surface */
+--glass-bg: rgba(255, 255, 255, 0.08);
+--glass-border: rgba(255, 255, 255, 0.15);
 ```
 
-### API Calls per Page
+### Animation Library
 
-| Page             | API Endpoints Called                                             |
-| ---------------- | ---------------------------------------------------------------- |
-| **LoginPage**    | `POST /api/auth/login`                                           |
-| **RegisterPage** | `POST /api/auth/register`                                        |
-| **Dashboard**    | `GET /api/cycles`, `GET /api/predictions`, `GET /api/daily-logs` |
-| **CalendarPage** | `GET /api/cycles`, `GET /api/daily-logs`                         |
-| **CycleForm**    | `POST /api/cycles`, `PUT /api/cycles/:id`                        |
-| **DailyLogForm** | `POST /api/daily-logs`                                           |
-| **ProfilePage**  | `GET /api/profile`, `PUT /api/profile`                           |
+| Animation | Duration | Usage |
+|-----------|----------|-------|
+| `float` | 6–8s | Floating shapes |
+| `fadeInUp` | 0.6s | Page entrances |
+| `slideInRight` | 0.3s | Mobile drawer |
+| `pulse-glow` | 2s | Progress ring |
+| `gradient-shift` | 3s | Auth background |
+| `blob-morph` | 8s | Morphing blobs |
+| `typing-dots` | 1.4s | Chatbot typing |
+| `confetti-fall` | 1s | Game completion |
 
----
+### Responsive Breakpoints
 
-## 🎨 Styling
-
-Aplikasi menggunakan **Vanilla CSS** dengan pendekatan:
-
-- **Global styles** (`index.css`) — CSS variables, reset, typography
-- **Page-level CSS** — Setiap halaman memiliki file CSS sendiri
-- **Component CSS** — Component-scoped styles (e.g., `Navbar.css`)
-
-### Design System
-
-- Color scheme dengan CSS custom properties
-- Responsive design (mobile-first)
-- Smooth transitions dan micro-animations
-- Loading spinners dan skeleton states
+| Breakpoint | Target |
+|------------|--------|
+| `≤480px` | Small phones — single column |
+| `≤768px` | Tablets — hamburger nav |
+| `≤1024px` | Small laptops — condensed sidebar |
+| `≥1025px` | Desktop — full layout |
 
 ---
 
-## 📝 Pages Overview
+## 📱 Mobile Responsiveness
 
-### 🔑 LoginPage & RegisterPage
+| Feature | Implementation |
+|---------|---------------|
+| **Touch targets** | Min `44×44px` semua interactive elements |
+| **Safe area** | `env(safe-area-inset-*)` untuk notched phones |
+| **Fluid typography** | `clamp()` untuk font sizes |
+| **Hamburger menu** | Slide-in drawer + backdrop blur |
+| **Form layouts** | Stack vertical, full-width inputs |
+| **Card grids** | Auto-collapse to single column |
+| **Chatbot** | Full-screen mode on mobile |
 
-- Form validasi client-side
-- Password visibility toggle
-- Error handling dengan user-friendly messages
-- Auto-redirect setelah login/register berhasil
+---
 
-### 📊 Dashboard
+## ⚙️ Build & Deploy
 
-- Ringkasan siklus terakhir & prediksi berikutnya
-- Status panjang siklus & kepercayaan prediksi
-- Quick action buttons ke fitur lain
-- Statistik dan overview data kesehatan
+```bash
+npm run dev          # Dev server + HMR → localhost:5173
+npm run build        # Production build → /dist
+npm run preview      # Preview production locally
+```
 
-### 📅 CalendarPage
+---
 
-- Kalender interaktif dengan visualisasi siklus
-- Warna berbeda untuk hari menstruasi, ovulasi estimasi
-- Klik tanggal untuk melihat detail log
+## 🔗 Related Repositories
 
-### 🩸 CycleForm
+| Repository | Description | Link |
+|------------|-------------|------|
+| **Frontend** | React SPA (this repo) | [frontend](https://github.com/Coding-Camp-Capstone-Project-2026/frontend) |
+| **Backend** | Express.js REST API | [backend](https://github.com/Coding-Camp-Capstone-Project-2026/backend) |
+| **Machine Learning** | Flask + LSTM Service | [machinelearning](https://github.com/Coding-Camp-Capstone-Project-2026/machinelearning) |
 
-- Input start/end date, panjang siklus, intensitas
-- Validasi input dengan feedback realtime
-- Support create & edit mode
+---
 
-### 📋 DailyLogForm
+## 👥 Tim Pengembang
 
-- Input mood (1-5), symptoms, kualitas tidur, stres, puasa
-- Multi-select symptoms dengan checkboxes
-- Auto-fill jika log sudah ada untuk tanggal tersebut
+Dibuat oleh **Ridho dan teman-teman** — Capstone Project Coding Camp 2026
 
-### 👤 ProfilePage
-
-- Tampilkan & edit profil (nama, tanggal lahir, rata-rata siklus)
-- Account information display
+**Powered by [kamidukung.biz.id](https://kamidukung.biz.id/)**
+]]>
