@@ -27,6 +27,34 @@ const TESTIMONIALS = [
   { stars: 5, text: '"Dashboard-nya bersih dan informatif. Sekarang aku tidak khawatir lagi tentang siklusku."', initial: 'R', name: 'Rina Wulandari', role: 'Ibu Rumah Tangga, 31 tahun' },
 ];
 
+const QUIZ_QUESTIONS = [
+  {
+    question: "Apakah minum es atau air dingin saat menstruasi dapat membekukan darah haid?",
+    type: "MYTH",
+    explanation: "MITOS! Air dingin masuk ke lambung (sistem pencernaan), sedangkan darah haid dilepaskan di rahim (sistem reproduksi). Keduanya tidak saling berhubungan sama sekali."
+  },
+  {
+    question: "Apakah olahraga ringan seperti yoga dan jalan santai justru membantu mengurangi kram menstruasi?",
+    type: "FACT",
+    explanation: "FAKTA! Olahraga ringan melepaskan endorfin (pereda nyeri alami tubuh) dan membantu melancarkan peredaran darah, merelaksasi otot panggul yang tegang."
+  },
+  {
+    question: "Apakah siklus menstruasi yang normal harus selalu tepat 28 hari setiap bulannya?",
+    type: "MYTH",
+    explanation: "MITOS! Setiap wanita unik. Siklus normal dan sehat berkisar antara 21 hingga 35 hari. Variasi beberapa hari antar siklus adalah hal yang normal."
+  },
+  {
+    question: "Apakah mencatat log harian seperti mood, kualitas tidur, dan stres berkontribusi pada presisi prediksi AI?",
+    type: "FACT",
+    explanation: "FAKTA! Pola hormonal berinteraksi erat dengan gejala harian. Menyuplai data contextual membantu model AI (LSTM) mempelajari siklus unik Anda secara mendalam."
+  },
+  {
+    question: "Apakah kram perut menstruasi yang sangat parah sampai mengganggu aktivitas harian adalah hal normal?",
+    type: "MYTH",
+    explanation: "MITOS! Kram ringan wajar terjadi, namun nyeri tak tertahankan (dismenore parah) yang mengganggu produktivitas bisa menjadi indikasi kondisi medis seperti endometriosis dan sebaiknya dikonsultasikan dengan dokter."
+  }
+];
+
 // ─── Typing Hook ───────────────────────────────────────────────────────────
 
 function useTypingEffect(text, speed = 80, delay = 800) {
@@ -95,6 +123,28 @@ export default function LandingPage() {
   const confidenceFillRef = useRef(null);
   const heroTyping = useTypingEffect('Kuasai Siklusmu ✨', 90, 600);
 
+  // Hamburger mobile menu state
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Myth vs Fact Game states
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [gameState, setGameState] = useState('PLAYING'); // 'PLAYING', 'ANSWERED', 'COMPLETED'
+  const [selectedAnswer, setSelectedAnswer] = useState(null); // 'MYTH', 'FACT'
+  const [score, setScore] = useState(0);
+  const [confetti, setConfetti] = useState([]);
+
+  // Chatbot states
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatbotMessages, setChatbotMessages] = useState([
+    {
+      sender: 'bot',
+      text: 'Halo! Saya Siska, asisten digital kesehatan menstruasimu di YeoCycles. Ada yang bisa saya bantu hari ini seputar siklus haid atau menstruasimu?'
+    }
+  ]);
+  const [chatbotInput, setChatbotInput] = useState('');
+  const [botTyping, setBotTyping] = useState(false);
+  const chatEndRef = useRef(null);
+
   useEffect(() => {
     if (token) navigate('/dashboard', { replace: true });
   }, [token, navigate]);
@@ -108,7 +158,7 @@ export default function LandingPage() {
 
   // Scroll reveal
   useEffect(() => {
-    const els = document.querySelectorAll('.lp-reveal, .lp-feature-card, .lp-step, .lp-testimonial-card, .lp-phase, .lp-myth-card, .lp-health-tip');
+    const els = document.querySelectorAll('.lp-reveal, .lp-feature-card, .lp-step, .lp-testimonial-card, .lp-phase, .lp-myth-card, .lp-health-tip, .lp-game-card');
     const observer = new IntersectionObserver(
       (entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add('lp-visible'); }),
       { threshold: 0.1 }
@@ -123,28 +173,149 @@ export default function LandingPage() {
     return () => { observer.disconnect(); barObs.disconnect(); };
   }, []);
 
-  const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  // Auto-scroll chat to bottom
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatbotMessages, botTyping]);
+
+  const scrollTo = (id) => {
+    setMenuOpen(false);
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Chatbot logic
+  const handleSendChat = (e) => {
+    if (e) e.preventDefault();
+    if (!chatbotInput.trim()) return;
+
+    const userText = chatbotInput.trim();
+    setChatbotMessages(prev => [...prev, { sender: 'user', text: userText }]);
+    setChatbotInput('');
+    setBotTyping(true);
+
+    setTimeout(() => {
+      let reply = '';
+      const cleanText = userText.toLowerCase();
+
+      // Check if creator-related question
+      if (
+        cleanText.includes('siapa yang membuat') ||
+        cleanText.includes('siapa pembuat') ||
+        cleanText.includes('siapa yang bikin') ||
+        cleanText.includes('siapa pembuatnya') ||
+        cleanText.includes('siapa developer') ||
+        cleanText.includes('siapa buat') ||
+        cleanText.includes('dibuat oleh') ||
+        cleanText.includes('nama pembuat')
+      ) {
+        reply = 'Aplikasi YeoCycles dan chatbot ini dibuat oleh Ridho dan teman-teman, powered by kamidukung!';
+      } else {
+        // Keyword checking
+        const keywords = [
+          'haid', 'menstruasi', 'datang bulan', 'period', 'siklus', 'pms', 
+          'kram', 'nyeri', 'pembalut', 'ovulasi', 'subur', 'darah', 'hormon', 
+          'mood', 'stres', 'puasa', 'yeocycles', 'aplikasi', 'fitur', 'lstm', 'ai', 'prediksi',
+          'kamidukung', 'ridho'
+        ];
+
+        const isRelated = keywords.some(keyword => cleanText.includes(keyword));
+
+        if (!isRelated) {
+          reply = 'Maaf, saya hanya dapat menjawab pertanyaan yang berkaitan dengan kesehatan menstruasi dan siklus haid. Ada hal seputar menstruasi yang ingin Anda tanyakan?';
+        } else {
+          // Specific responses
+          if (cleanText.includes('kram') || cleanText.includes('nyeri') || cleanText.includes('sakit')) {
+            reply = 'Untuk meredakan kram menstruasi ringan, Anda bisa mengompres hangat perut bagian bawah, minum air putih hangat, berolahraga ringan seperti yoga, dan pastikan istirahat cukup.';
+          } else if (cleanText.includes('normal') || cleanText.includes('berapa hari') || cleanText.includes('panjang')) {
+            reply = 'Siklus menstruasi sehat dan normal biasanya berkisar 21-35 hari, dengan lama haid 3-7 hari. Mengalami pergeseran beberapa hari adalah hal wajar karena pengaruh hormon atau stres.';
+          } else if (cleanText.includes('pms') || cleanText.includes('gejala')) {
+            reply = 'Sindrom Pramenstruasi (PMS) ditandai dengan perubahan mood, nyeri payudara, kram ringan, dan kelelahan. Ini disebabkan fluktuasi hormon estrogen dan progesteron.';
+          } else if (cleanText.includes('lstm') || cleanText.includes('ai') || cleanText.includes('prediksi') || cleanText.includes('cara kerja')) {
+            reply = 'YeoCycles menggunakan algoritma LSTM deep learning untuk menganalisis data siklus historis dan log harian Anda guna memberikan prediksi hari mulai haid berikutnya dengan presisi tinggi.';
+          } else if (cleanText.includes('puasa')) {
+            reply = 'Status puasa dalam YeoCycles membantu model AI kami mendeteksi apakah pola asupan nutrisi Anda memengaruhi keteraturan siklus bulanan Anda secara biologis.';
+          } else {
+            reply = 'Tentu! Menjaga pola hidup sehat, beristirahat cukup, mengonsumsi nutrisi kaya zat besi dan magnesium, serta melacak siklus secara rutin dengan YeoCycles sangat baik untuk memantau kesehatan reproduksi Anda. Apakah ada pertanyaan spesifik lainnya?';
+          }
+        }
+      }
+
+      setBotTyping(false);
+      setChatbotMessages(prev => [...prev, { sender: 'bot', text: reply }]);
+    }, 1000);
+  };
+
+  // Game Handlers
+  const handleAnswer = (answer) => {
+    setSelectedAnswer(answer);
+    setGameState('ANSWERED');
+    const isCorrect = answer === QUIZ_QUESTIONS[currentQuestion].type;
+    if (isCorrect) {
+      setScore(prev => prev + 1);
+      // Spawn CSS confetti
+      const particles = [];
+      const colors = ['#ec4899', '#a855f7', '#6366f1', '#10b981', '#f59e0b'];
+      for (let i = 0; i < 30; i++) {
+        particles.push({
+          id: Math.random(),
+          left: `${10 + Math.random() * 80}%`,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          delay: `${Math.random() * 0.5}s`,
+          size: `${4 + Math.random() * 8}px`
+        });
+      }
+      setConfetti(particles);
+      setTimeout(() => setConfetti([]), 2500);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentQuestion < QUIZ_QUESTIONS.length - 1) {
+      setCurrentQuestion(prev => prev + 1);
+      setGameState('PLAYING');
+      setSelectedAnswer(null);
+    } else {
+      setGameState('COMPLETED');
+    }
+  };
+
+  const handleRestart = () => {
+    setCurrentQuestion(0);
+    setGameState('PLAYING');
+    setSelectedAnswer(null);
+    setScore(0);
+  };
 
   return (
     <div className="lp-root">
       {/* ── NAVBAR ─── */}
       <nav ref={navRef} className="lp-nav">
         <div className="lp-nav-inner">
-          <Link to="/" className="lp-logo">
+          <Link to="/" className="lp-logo" onClick={() => setMenuOpen(false)}>
             <img src={logo} alt="YeoCycles" className="lp-logo-img" />
             <span className="lp-logo-text">YeoCycles</span>
           </Link>
-          <ul className="lp-nav-links">
+          <ul className={`lp-nav-links ${menuOpen ? 'active' : ''}`}>
             <li><a href="#features" onClick={(e) => { e.preventDefault(); scrollTo('features'); }}>Fitur</a></li>
             <li><a href="#how-it-works" onClick={(e) => { e.preventDefault(); scrollTo('how-it-works'); }}>Cara Kerja</a></li>
-            <li><a href="#ai-preview" onClick={(e) => { e.preventDefault(); scrollTo('ai-preview'); }}>Teknologi AI</a></li>
+            <li><a href="#education" onClick={(e) => { e.preventDefault(); scrollTo('education'); }}>Edukasi</a></li>
+            <li><a href="#cycle-game" onClick={(e) => { e.preventDefault(); scrollTo('cycle-game'); }}>Game Edukasi</a></li>
             <li><a href="#testimonials" onClick={(e) => { e.preventDefault(); scrollTo('testimonials'); }}>Testimoni</a></li>
           </ul>
           <div className="lp-nav-actions">
             <Link to="/login" className="lp-btn-ghost">Masuk</Link>
             <Link to="/register" className="btn btn-primary btn-sm">Daftar Gratis</Link>
           </div>
-          <div className="lp-hamburger" role="button" tabIndex={0}><span /><span /><span /></div>
+          <div 
+            className={`lp-hamburger ${menuOpen ? 'active' : ''}`} 
+            role="button" 
+            tabIndex={0}
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            <span />
+            <span />
+            <span />
+          </div>
         </div>
       </nav>
 
@@ -393,6 +564,99 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── GAME EDUKASI INTERAKTIF (NEW) ─── */}
+      <section id="cycle-game" className="lp-game-section">
+        <div className="lp-game-container">
+          <div className="lp-section-header lp-reveal">
+            <div className="lp-section-tag">🎮 Game Edukasi</div>
+            <h2 className="lp-section-title">Cycle Myth-Busters</h2>
+            <p className="lp-section-desc">Uji pengetahuanmu seputar menstruasi dan tubuh wanita dalam game kuis edukatif yang seru ini!</p>
+          </div>
+
+          <div className="lp-game-card lp-reveal">
+            {confetti.map((c) => (
+              <div 
+                key={c.id} 
+                className="lp-confetti-particle" 
+                style={{ left: c.left, backgroundColor: c.color, animationDelay: c.delay, width: c.size, height: c.size }}
+              />
+            ))}
+
+            {gameState !== 'COMPLETED' ? (
+              <>
+                <div className="lp-game-progress-bar">
+                  <div 
+                    className="lp-game-progress-fill" 
+                    style={{ width: `${((currentQuestion + (gameState === 'ANSWERED' ? 1 : 0)) / QUIZ_QUESTIONS.length) * 100}%` }}
+                  />
+                </div>
+                
+                <div className="lp-game-step-info">
+                  Pertanyaan {currentQuestion + 1} dari {QUIZ_QUESTIONS.length}
+                </div>
+
+                <h3 className="lp-game-question">
+                  "{QUIZ_QUESTIONS[currentQuestion].question}"
+                </h3>
+
+                <div className="lp-game-btn-grid">
+                  <button 
+                    className="btn lp-game-btn-myth"
+                    disabled={gameState === 'ANSWERED'}
+                    onClick={() => handleAnswer('MYTH')}
+                  >
+                    ❌ Mitos
+                  </button>
+                  <button 
+                    className="btn lp-game-btn-fact"
+                    disabled={gameState === 'ANSWERED'}
+                    onClick={() => handleAnswer('FACT')}
+                  >
+                    ✅ Fakta
+                  </button>
+                </div>
+
+                {gameState === 'ANSWERED' && (
+                  <div className={`lp-game-feedback-card ${selectedAnswer === QUIZ_QUESTIONS[currentQuestion].type ? 'correct' : 'wrong'}`}>
+                    <div className={`lp-game-feedback-title ${selectedAnswer === QUIZ_QUESTIONS[currentQuestion].type ? 'correct' : 'wrong'}`}>
+                      {selectedAnswer === QUIZ_QUESTIONS[currentQuestion].type ? '🎉 Tepat Sekali!' : '😢 Belum Tepat'}
+                    </div>
+                    <p className="lp-game-explanation">
+                      {QUIZ_QUESTIONS[currentQuestion].explanation}
+                    </p>
+                    <button 
+                      className="btn btn-primary" 
+                      style={{ marginTop: '20px' }}
+                      onClick={handleNext}
+                    >
+                      {currentQuestion < QUIZ_QUESTIONS.length - 1 ? 'Pertanyaan Berikutnya ➡️' : 'Lihat Hasil Akhir 🏆'}
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="lp-game-result-slide">
+                <span style={{ fontSize: '4rem' }}>🏆</span>
+                <h3 className="lp-game-result-title">Tantangan Selesai!</h3>
+                <div className="lp-game-score-badge">
+                  {score} / {QUIZ_QUESTIONS.length}
+                </div>
+                <p className="lp-game-score-msg">
+                  {score === QUIZ_QUESTIONS.length 
+                    ? "Luar biasa! Anda adalah pakar kesehatan siklus sejati! 🌟" 
+                    : score >= 3 
+                    ? "Hebat sekali! Anda sangat mengenal tubuh Anda dengan baik. 👍" 
+                    : "Bagus! Mari terus belajar memahami siklus tubuh Anda bersama YeoCycles. 🌸"}
+                </p>
+                <button className="btn btn-primary" onClick={handleRestart}>
+                  🔄 Main Lagi
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* ── AI PREVIEW ─── */}
       <section id="ai-preview" className="lp-ai">
         <div className="lp-ai-inner">
@@ -500,6 +764,9 @@ export default function LandingPage() {
           </div>
           <div className="lp-footer-bottom">
             <span>© 2026 YeoCycles · Coding Camp Capstone Project</span>
+            <div className="lp-footer-powered">
+              Powered by <a href="https://kamidukung.biz.id/" target="_blank" rel="noopener noreferrer" className="lp-powered-link">kamidukung.biz.id</a>
+            </div>
             <div className="lp-footer-tech">
               <span className="lp-tech-badge">React</span>
               <span className="lp-tech-badge">Express</span>
@@ -509,6 +776,66 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* ── CHATBOT SISKA WIDGET (NEW) ─── */}
+      <div className="lp-chatbot-widget">
+        {!chatOpen ? (
+          <div className="lp-chatbot-bubble" onClick={() => setChatOpen(true)}>
+            <span>💬</span>
+            <span className="lp-chatbot-badge" />
+            <div className="lp-chatbot-tooltip">Tanya Siska AI 💬</div>
+          </div>
+        ) : (
+          <div className="lp-chatbot-window">
+            <div className="lp-chatbot-header">
+              <div className="lp-chatbot-header-info">
+                <div className="lp-chatbot-avatar">🌸</div>
+                <div className="lp-chatbot-name-container">
+                  <span className="lp-chatbot-name">Siska AI</span>
+                  <span className="lp-chatbot-status">Online</span>
+                </div>
+              </div>
+              <button className="lp-chatbot-close" onClick={() => setChatOpen(false)}>×</button>
+            </div>
+            
+            <div className="lp-chatbot-body">
+              {chatbotMessages.map((m, idx) => (
+                <div key={idx} className={`lp-chat-msg ${m.sender}`}>
+                  {m.text}
+                </div>
+              ))}
+              {botTyping && (
+                <div className="lp-chat-typing">
+                  <span />
+                  <span />
+                  <span />
+                </div>
+              )}
+              <div ref={chatEndRef} />
+            </div>
+
+            <div className="lp-chatbot-chips">
+              <div className="lp-chat-chip" onClick={() => { setChatbotInput('Bagaimana meredakan kram?'); }}>🌸 Kram Haid</div>
+              <div className="lp-chat-chip" onClick={() => { setChatbotInput('Berapa hari siklus haid normal?'); }}>📅 Siklus Normal</div>
+              <div className="lp-chat-chip" onClick={() => { setChatbotInput('Bagaimana cara kerja prediksi AI LSTM?'); }}>🤖 Prediksi AI</div>
+              <div className="lp-chat-chip" onClick={() => { setChatbotInput('Siapa pembuat program ini?'); }}>💻 Pembuat Program</div>
+            </div>
+
+            <form className="lp-chatbot-input-form" onSubmit={handleSendChat}>
+              <input
+                type="text"
+                className="lp-chatbot-input"
+                placeholder="Tanyakan kesehatan menstruasi..."
+                value={chatbotInput}
+                onChange={(e) => setChatbotInput(e.target.value)}
+              />
+              <button type="submit" className="lp-chatbot-send-btn">
+                ✈️
+              </button>
+            </form>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

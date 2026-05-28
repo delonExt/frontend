@@ -1,4 +1,5 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import logo from '../assets/logo.png';
 import './Navbar.css';
@@ -6,53 +7,140 @@ import './Navbar.css';
 export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Sidebar toggle state
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
+    setSidebarOpen(false);
     navigate('/login');
   };
 
+  // Auto-close sidebar on route change
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location]);
+
+  // Lock body scroll when sidebar is open
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.classList.add('sidebar-active-lock');
+    } else {
+      document.body.classList.remove('sidebar-active-lock');
+    }
+    return () => {
+      document.body.classList.remove('sidebar-active-lock');
+    };
+  }, [sidebarOpen]);
+
   return (
-    <nav className="navbar">
-      <div className="navbar-container">
-        <NavLink to="/dashboard" className="navbar-brand">
-          <img src={logo} alt="YeoCycles" className="brand-logo" />
-          <span className="brand-text">YeoCycles</span>
-        </NavLink>
+    <>
+      <nav className="navbar">
+        <div className="navbar-container">
+          <NavLink to="/dashboard" className="navbar-brand">
+            <img src={logo} alt="YeoCycles" className="brand-logo" />
+            <span className="brand-text">YeoCycles</span>
+          </NavLink>
 
-        <div className="navbar-links">
-          <NavLink to="/dashboard" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-            <span className="nav-icon">📊</span>
-            <span>Dashboard</span>
-          </NavLink>
-          <NavLink to="/calendar" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-            <span className="nav-icon">📅</span>
-            <span>Calendar</span>
-          </NavLink>
-          <NavLink to="/cycle" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-            <span className="nav-icon">🔄</span>
-            <span>Cycles</span>
-          </NavLink>
-          <NavLink to="/daily-log" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-            <span className="nav-icon">📝</span>
-            <span>Daily Log</span>
-          </NavLink>
-          <NavLink to="/profile" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-            <span className="nav-icon">👤</span>
-            <span>Profile</span>
-          </NavLink>
-        </div>
-
-        <div className="navbar-user">
-          <div className="user-info">
-            <span className="user-avatar">{user?.name?.charAt(0)?.toUpperCase() || 'U'}</span>
-            <span className="user-greeting">Hi, {user?.name?.split(' ')[0] || 'User'}</span>
+          {/* Desktop Nav Links */}
+          <div className="navbar-links">
+            <NavLink to="/dashboard" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              <span className="nav-icon">📊</span>
+              <span>Dashboard</span>
+            </NavLink>
+            <NavLink to="/calendar" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              <span className="nav-icon">📅</span>
+              <span>Calendar</span>
+            </NavLink>
+            <NavLink to="/cycle" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              <span className="nav-icon">🔄</span>
+              <span>Cycles</span>
+            </NavLink>
+            <NavLink to="/daily-log" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              <span className="nav-icon">📝</span>
+              <span>Daily Log</span>
+            </NavLink>
+            <NavLink to="/profile" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              <span className="nav-icon">👤</span>
+              <span>Profile</span>
+            </NavLink>
           </div>
-          <button onClick={handleLogout} className="btn-logout">
-            Logout
+
+          {/* Desktop User Section */}
+          <div className="navbar-user">
+            <div className="user-info">
+              <span className="user-avatar">{user?.name?.charAt(0)?.toUpperCase() || 'U'}</span>
+              <span className="user-greeting">Hi, {user?.name?.split(' ')[0] || 'User'}</span>
+            </div>
+            <button onClick={handleLogout} className="btn-logout">
+              Logout
+            </button>
+          </div>
+
+          {/* Hamburger Menu Button for Mobile */}
+          <button 
+            className={`navbar-hamburger ${sidebarOpen ? 'active' : ''}`}
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            aria-label="Toggle navigation menu"
+          >
+            <span />
+            <span />
+            <span />
           </button>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      {/* Backdrop overlay for sidebar */}
+      {sidebarOpen && (
+        <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />
+      )}
+
+      {/* Mobile sliding Sidebar Drawer */}
+      <aside className={`sidebar-drawer ${sidebarOpen ? 'active' : ''}`}>
+        <div className="sidebar-header">
+          <img src={logo} alt="YeoCycles Logo" className="sidebar-logo" />
+          <span className="sidebar-title">YeoCycles</span>
+        </div>
+
+        <div className="sidebar-user-section">
+          <div className="sidebar-avatar">{user?.name?.charAt(0)?.toUpperCase() || 'U'}</div>
+          <div className="sidebar-user-details">
+            <span className="sidebar-user-name">{user?.name || 'User'}</span>
+            <span className="sidebar-user-email">{user?.email || 'user@email.com'}</span>
+          </div>
+        </div>
+
+        <nav className="sidebar-nav">
+          <NavLink to="/dashboard" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+            <span className="sidebar-icon">📊</span>
+            <span>Dashboard</span>
+          </NavLink>
+          <NavLink to="/calendar" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+            <span className="sidebar-icon">📅</span>
+            <span>Calendar</span>
+          </NavLink>
+          <NavLink to="/cycle" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+            <span className="sidebar-icon">🔄</span>
+            <span>Cycles</span>
+          </NavLink>
+          <NavLink to="/daily-log" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+            <span className="sidebar-icon">📝</span>
+            <span>Daily Log</span>
+          </NavLink>
+          <NavLink to="/profile" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+            <span className="sidebar-icon">👤</span>
+            <span>Profile</span>
+          </NavLink>
+        </nav>
+
+        <div className="sidebar-footer">
+          <button onClick={handleLogout} className="sidebar-btn-logout">
+            🚪 Logout dari Akun
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }

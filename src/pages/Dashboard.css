@@ -339,6 +339,7 @@
   .dash-stats { grid-template-columns: repeat(2, 1fr); }
   .dash-two-col { grid-template-columns: 1fr; }
   .dash-pred-header { flex-direction: column; gap: 8px; align-items: flex-start; }
+  .dash-header-flex { flex-direction: column; align-items: flex-start; gap: 12px; }
 }
 
 @media (max-width: 480px) {
@@ -351,4 +352,235 @@
   .dash-ring-svg { width: 110px; height: 110px; }
   .dash-ring-num { font-size: 2rem; }
   .dash-pred-date { font-size: 1.1rem; }
+}
+
+/* ─── Cycle Badge (Header) ─── */
+.dash-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.dash-cycle-badge {
+  padding: 8px 18px;
+  background: rgba(236, 72, 153, 0.08);
+  border: 1px solid rgba(236, 72, 153, 0.2);
+  border-radius: var(--radius-full);
+  color: var(--primary-600);
+  font-weight: 700;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.04);
+}
+
+.dash-cycle-badge-pulse {
+  width: 8px;
+  height: 8px;
+  background: var(--primary-500);
+  border-radius: 50%;
+  animation: dash-pulse-g 1.5s infinite;
+}
+
+@keyframes dash-pulse-g {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.5); }
+  70% { transform: scale(1.2); box-shadow: 0 0 0 6px rgba(236, 72, 153, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
+}
+
+/* ─── Staggered Entrance Animations ─── */
+.dash-animate-1 { animation: dash-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.dash-animate-2 { animation: dash-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.08s forwards; opacity: 0; }
+.dash-animate-3 { animation: dash-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.16s forwards; opacity: 0; }
+.dash-animate-4 { animation: dash-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.24s forwards; opacity: 0; }
+.dash-animate-5 { animation: dash-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.32s forwards; opacity: 0; }
+.dash-animate-6 { animation: dash-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards; opacity: 0; }
+
+@keyframes dash-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Stats badge bottom description ─── */
+.dash-stat-meta-info {
+  font-size: 0.68rem;
+  color: var(--gray-400);
+  margin-top: 6px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ─── Fasting Badge ─── */
+.dash-badge-fasting {
+  padding: 2px 8px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: #047857 !important;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* ─── Mini Cycle Chart ─── */
+.dash-mini-chart-card {
+  overflow: visible;
+}
+
+.dash-chart-wrapper {
+  display: flex;
+  height: 200px;
+  padding: 10px 0 20px 10px;
+  gap: 16px;
+  position: relative;
+}
+
+.dash-chart-y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: var(--gray-400);
+  font-size: 0.75rem;
+  font-weight: 600;
+  width: 32px;
+  border-right: 1.5px solid var(--gray-100);
+  padding-right: 8px;
+  text-align: right;
+}
+
+.dash-chart-bars {
+  flex: 1;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 100%;
+}
+
+.dash-chart-bar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 44px;
+  height: 100%;
+  justify-content: flex-end;
+  position: relative;
+}
+
+.dash-chart-bar {
+  width: 22px;
+  border-radius: var(--radius-full) var(--radius-full) 0 0;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(236, 72, 153, 0.15);
+}
+
+.dash-chart-bar-container:hover .dash-chart-bar {
+  transform: scaleY(1.05) translateY(-2px);
+  box-shadow: 0 8px 20px rgba(236, 72, 153, 0.3);
+  filter: brightness(1.05);
+}
+
+.dash-chart-bar-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background: rgba(30, 27, 75, 0.9);
+  color: white;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.25s ease;
+  z-index: 100;
+}
+
+.dash-chart-bar-container:hover .dash-chart-bar-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-12px);
+}
+
+.dash-chart-bar-label {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  font-weight: 600;
+  margin-top: 12px;
+  white-space: nowrap;
+}
+
+/* ─── Tips Carousel ─── */
+.dash-tips-carousel-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-tips-carousel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 16px 20px;
+}
+
+.dash-tips-slide {
+  animation: dash-fade-in-tip 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes dash-fade-in-tip {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dash-tip-icon-glow {
+  font-size: 2.8rem;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 4px 12px rgba(236, 72, 153, 0.25));
+  display: inline-block;
+  animation: float 4s ease-in-out infinite;
+}
+
+.dash-tip-text-large {
+  font-size: 0.92rem;
+  color: var(--gray-700);
+  line-height: 1.6;
+  font-weight: 500;
+  margin-bottom: 24px;
+  max-width: 320px;
+}
+
+.dash-tips-carousel-dots {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.dash-tips-carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gray-200);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.dash-tips-carousel-dot.active {
+  background: var(--primary-500);
+  transform: scale(1.2);
+  width: 16px;
+  border-radius: var(--radius-full);
 }
