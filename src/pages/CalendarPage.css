@@ -171,8 +171,42 @@
 .predicted-color { background: rgba(168, 85, 247, 0.15); border: 1px dashed var(--secondary-400); }
 .today-color { background: var(--primary-50); border: 2px solid var(--primary-400); }
 
-@media (max-width: 640px) {
-  .cal-day { min-height: 40px; }
-  .day-number { font-size: 0.8rem; }
-  .indicator { font-size: 0.45rem; }
+@media (max-width: 768px) {
+  .calendar-page {
+    padding: 20px 16px;
+  }
+  .calendar-card {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 500px) {
+  .calendar-nav {
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    text-align: center;
+  }
+  .current-month {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .cal-header {
+    font-size: 0.7rem;
+    padding: 4px;
+  }
+  .cal-day {
+    min-height: 44px;
+    padding: 2px;
+  }
+  .day-number {
+    font-size: 0.78rem;
+  }
+  .day-indicators {
+    transform: scale(0.85);
+  }
+  .legend-items {
+    flex-direction: column;
+    gap: 10px;
+  }
 }

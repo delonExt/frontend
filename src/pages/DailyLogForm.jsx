@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import api from '../services/api';
 import './FormPage.css';
 
 const SYMPTOMS = [
-  { id: 'cramps', label: 'Cramps', emoji: '🤕' },
-  { id: 'headache', label: 'Headache', emoji: '🤯' },
+  { id: 'cramps', label: 'Cramps', emoji: '😖' },
+  { id: 'headache', label: 'Headache', emoji: '🤕' },
   { id: 'bloating', label: 'Bloating', emoji: '🫧' },
   { id: 'fatigue', label: 'Fatigue', emoji: '😴' },
   { id: 'backpain', label: 'Back Pain', emoji: '💆' },
   { id: 'nausea', label: 'Nausea', emoji: '🤢' },
-  { id: 'acne', label: 'Acne', emoji: '😖' },
+  { id: 'acne', label: 'Acne', emoji: '🧼' },
   { id: 'breast_tender', label: 'Breast Tenderness', emoji: '😣' },
   { id: 'mood_swings', label: 'Mood Swings', emoji: '🎭' },
   { id: 'cravings', label: 'Cravings', emoji: '🍫' },
@@ -23,9 +24,35 @@ const MOOD_EMOJIS = [
   { value: 5, emoji: '😄', label: 'Great' },
 ];
 
+const SLEEP_LEVELS = [
+  { value: 1, emoji: '😭', label: 'Sangat Buruk', desc: 'Insomnia / gelisah' },
+  { value: 2, emoji: '🥱', label: 'Kurang', desc: 'Sering terbangun' },
+  { value: 3, emoji: '😐', label: 'Cukup', desc: 'Tidur rata-rata' },
+  { value: 4, emoji: '😴', label: 'Nyenyak', desc: 'Rileks & segar' },
+  { value: 5, emoji: '🌟', label: 'Pulas', desc: 'Deep sleep sempurna' },
+];
+
+const STRESS_LEVELS = [
+  { value: 1, emoji: '🧘', label: 'Sangat Tenang', desc: 'Tenang & rileks' },
+  { value: 2, emoji: '🙂', label: 'Tenang', desc: 'Sedikit tertekan' },
+  { value: 3, emoji: '😐', label: 'Sedang', desc: 'Normal / seimbang' },
+  { value: 4, emoji: '😰', label: 'Stres', desc: 'Tinggi / cemas' },
+  { value: 5, emoji: '🌋', label: 'Sangat Stres', desc: 'Sangat kewalahan' },
+];
+
+const getLocalDateString = (dateObj = new Date()) => {
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export default function DailyLogForm() {
+  const location = useLocation();
+  const initialDate = location.state?.prefilledDate || getLocalDateString();
+
   const [form, setForm] = useState({
-    date: new Date().toISOString().split('T')[0],
+    date: initialDate,
     mood: 3,
     symptoms: [],
     sleep_quality: 3,
@@ -42,12 +69,50 @@ export default function DailyLogForm() {
     loadRecentLogs();
   }, []);
 
+  // Preload daily log whenever selected date changes
+  useEffect(() => {
+    preloadLogData(form.date);
+  }, [form.date]);
+
   const loadRecentLogs = async () => {
     try {
       const res = await api.get('/daily-logs');
       setRecentLogs(Array.isArray(res.data) ? res.data.slice(0, 7) : []);
     } catch (err) {
       console.error('Load logs error:', err);
+    }
+  };
+
+  const preloadLogData = async (selectedDate) => {
+    if (!selectedDate) return;
+    try {
+      const res = await api.get(`/daily-logs/${selectedDate}`);
+      if (res.data) {
+        setForm({
+          date: selectedDate,
+          mood: Number(res.data.mood) || 3,
+          symptoms: Array.isArray(res.data.symptoms) ? res.data.symptoms : [],
+          sleep_quality: Number(res.data.sleep_quality) || 3,
+          stress_level: Number(res.data.stress_level) || 3,
+          is_fasting: res.data.is_fasting === 1 || res.data.is_fasting === true,
+          notes: res.data.notes || ''
+        });
+      }
+    } catch (err) {
+      if (err.response?.status === 404) {
+        // Reset to default values if no log exists for selected date
+        setForm(f => ({
+          ...f,
+          mood: 3,
+          symptoms: [],
+          sleep_quality: 3,
+          stress_level: 3,
+          is_fasting: false,
+          notes: ''
+        }));
+      } else {
+        console.error('Preload log error:', err);
+      }
     }
   };
 
@@ -67,7 +132,16 @@ export default function DailyLogForm() {
     setLoading(true);
 
     try {
-      await api.post('/daily-logs', form);
+      try {
+        await api.post('/daily-logs', form);
+      } catch (err) {
+        if (err.response?.status === 409) {
+          // If the log already exists for this date, update it using PUT
+          await api.put(`/daily-logs/${form.date}`, form);
+        } else {
+          throw err;
+        }
+      }
       setSuccess('Daily log saved! 🌟');
       loadRecentLogs();
     } catch (err) {
@@ -109,7 +183,7 @@ export default function DailyLogForm() {
                 <button
                   key={m.value}
                   type="button"
-                  className={`mood-btn ${form.mood === m.value ? 'active' : ''}`}
+                  className={`mood-btn ${Number(form.mood) === m.value ? 'active' : ''}`}
                   onClick={() => setForm(f => ({ ...f, mood: m.value }))}
                 >
                   <span className="mood-emoji">{m.emoji}</span>
@@ -137,35 +211,41 @@ export default function DailyLogForm() {
             </div>
           </div>
 
-          {/* Sleep Quality */}
+          {/* Sleep Quality Card Selector */}
           <div className="form-group">
-            <label className="form-label">Sleep Quality: {form.sleep_quality}/5 💤</label>
-            <input
-              type="range"
-              className="range-input"
-              min="1" max="5"
-              value={form.sleep_quality}
-              onChange={(e) => setForm(f => ({ ...f, sleep_quality: parseInt(e.target.value) }))}
-            />
-            <div className="range-labels">
-              <span>Poor</span>
-              <span>Excellent</span>
+            <label className="form-label">Sleep Quality 💤</label>
+            <div className="wellness-selector">
+              {SLEEP_LEVELS.map(s => (
+                <button
+                  key={s.value}
+                  type="button"
+                  className={`wellness-card sleep-card ${Number(form.sleep_quality) === s.value ? 'active' : ''}`}
+                  onClick={() => setForm(f => ({ ...f, sleep_quality: s.value }))}
+                >
+                  <span className="wellness-emoji">{s.emoji}</span>
+                  <span className="wellness-label">{s.label}</span>
+                  <span className="wellness-desc">{s.desc}</span>
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Stress Level */}
+          {/* Stress Level Card Selector */}
           <div className="form-group">
-            <label className="form-label">Stress Level: {form.stress_level}/5 😰</label>
-            <input
-              type="range"
-              className="range-input"
-              min="1" max="5"
-              value={form.stress_level}
-              onChange={(e) => setForm(f => ({ ...f, stress_level: parseInt(e.target.value) }))}
-            />
-            <div className="range-labels">
-              <span>Low</span>
-              <span>High</span>
+            <label className="form-label">Stress Level 😰</label>
+            <div className="wellness-selector">
+              {STRESS_LEVELS.map(s => (
+                <button
+                  key={s.value}
+                  type="button"
+                  className={`wellness-card stress-card ${Number(form.stress_level) === s.value ? 'active' : ''}`}
+                  onClick={() => setForm(f => ({ ...f, stress_level: s.value }))}
+                >
+                  <span className="wellness-emoji">{s.emoji}</span>
+                  <span className="wellness-label">{s.label}</span>
+                  <span className="wellness-desc">{s.desc}</span>
+                </button>
+              ))}
             </div>
           </div>
 
@@ -212,7 +292,7 @@ export default function DailyLogForm() {
                   <span className="history-start">
                     {new Date(log.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </span>
-                  <span className="history-mood">{MOOD_EMOJIS.find(m => m.value === log.mood)?.emoji || '😐'}</span>
+                  <span className="history-mood">{MOOD_EMOJIS.find(m => m.value === Number(log.mood))?.emoji || '😐'}</span>
                   <span className="history-detail">💤 {log.sleep_quality}/5</span>
                   <span className="history-detail">😰 {log.stress_level}/5</span>
                   {log.is_fasting ? <span>🕌</span> : null}

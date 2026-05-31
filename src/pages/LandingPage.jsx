@@ -156,6 +156,18 @@ export default function LandingPage() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.classList.add('body-menu-lock');
+    } else {
+      document.body.classList.remove('body-menu-lock');
+    }
+    return () => {
+      document.body.classList.remove('body-menu-lock');
+    };
+  }, [menuOpen]);
+
   // Scroll reveal
   useEffect(() => {
     const els = document.querySelectorAll('.lp-reveal, .lp-feature-card, .lp-step, .lp-testimonial-card, .lp-phase, .lp-myth-card, .lp-health-tip, .lp-game-card');
@@ -301,6 +313,10 @@ export default function LandingPage() {
             <li><a href="#education" onClick={(e) => { e.preventDefault(); scrollTo('education'); }}>Edukasi</a></li>
             <li><a href="#cycle-game" onClick={(e) => { e.preventDefault(); scrollTo('cycle-game'); }}>Game Edukasi</a></li>
             <li><a href="#testimonials" onClick={(e) => { e.preventDefault(); scrollTo('testimonials'); }}>Testimoni</a></li>
+            <li className="lp-mobile-nav-actions">
+              <Link to="/login" className="lp-btn-ghost" onClick={() => setMenuOpen(false)}>Masuk</Link>
+              <Link to="/register" className="btn btn-primary btn-sm" onClick={() => setMenuOpen(false)}>Daftar Gratis</Link>
+            </li>
           </ul>
           <div className="lp-nav-actions">
             <Link to="/login" className="lp-btn-ghost">Masuk</Link>

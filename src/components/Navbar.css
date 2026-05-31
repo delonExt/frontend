@@ -175,38 +175,84 @@
   transform: translateY(-1px);
 }
 
-/* ─── Responsive ─── */
-@media (max-width: 768px) {
+.navbar-page-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  letter-spacing: -0.3px;
+  display: none;
+  background: linear-gradient(135deg, var(--gray-800) 0%, var(--primary-600) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ─── Responsive Desktop (Persistent Sidebar) ─── */
+@media (min-width: 1024px) {
+  .navbar-page-title {
+    display: block;
+  }
+  
+  .navbar-brand {
+    display: none !important;
+  }
+  
+  .navbar-links {
+    display: none !important;
+  }
+
+  .sidebar-drawer {
+    transform: translateX(0) !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 260px;
+    z-index: 100;
+    border-right: 1px solid rgba(236, 72, 153, 0.1);
+  }
+
+  .sidebar-backdrop {
+    display: none !important;
+  }
+
+  .navbar {
+    margin-left: 260px;
+    width: calc(100% - 260px);
+  }
+
+  main {
+    margin-left: 260px;
+    min-height: calc(100vh - 68px);
+  }
+}
+
+/* ─── Responsive Mobile/Tablet (Sliding Drawer) ─── */
+@media (max-width: 1023px) {
   .navbar-container {
-    padding: 0 12px;
-    gap: 8px;
+    padding: 0 16px;
     height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
   }
 
   .brand-text {
-    display: none;
+    display: inline-block !important;
+    font-size: 1.15rem;
   }
 
   .brand-logo {
     height: 32px;
   }
 
-  .nav-link span:last-child {
-    display: none;
-  }
-
-  .nav-link {
-    padding: 8px 10px;
-  }
-
-  .nav-icon {
-    font-size: 1.25rem;
-  }
-
   .user-greeting,
   .user-info,
   .btn-logout,
-  .navbar-links {
+  .navbar-links,
+  .navbar-user,
+  .navbar-page-title {
     display: none !important;
   }
 
@@ -231,7 +277,7 @@ body.sidebar-active-lock {
   border: none;
   cursor: pointer;
   padding: 0;
-  z-index: 150;
+  z-index: 1005; /* Above sidebar drawer (1001) and backdrop (1000) */
   outline: none;
 }
 
@@ -280,6 +326,7 @@ body.sidebar-active-lock {
   left: 0;
   bottom: 0;
   width: 290px;
+  max-width: 85vw; /* Responsive width on very small screens */
   background: rgba(255, 255, 255, 0.78);
   backdrop-filter: blur(32px) saturate(210%);
   -webkit-backdrop-filter: blur(32px) saturate(210%);
@@ -290,7 +337,11 @@ body.sidebar-active-lock {
   display: flex;
   flex-direction: column;
   padding: 32px 24px;
+  padding-top: calc(32px + env(safe-area-inset-top, 0px)); /* Safe area padding on iOS */
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   box-shadow: 15px 0 50px rgba(15, 23, 42, 0.06);
+  overflow-y: auto; /* Proper touch scroll behavior */
+  -webkit-overflow-scrolling: touch;
 }
 
 .sidebar-drawer.active {

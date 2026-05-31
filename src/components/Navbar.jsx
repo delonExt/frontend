@@ -35,6 +35,17 @@ export default function Navbar() {
     };
   }, [sidebarOpen]);
 
+  // Handle escape key to close sidebar
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && sidebarOpen) {
+        setSidebarOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [sidebarOpen]);
+
   return (
     <>
       <nav className="navbar">
@@ -43,6 +54,17 @@ export default function Navbar() {
             <img src={logo} alt="YeoCycles" className="brand-logo" />
             <span className="brand-text">YeoCycles</span>
           </NavLink>
+
+          {/* Desktop-only Dynamic Page Title */}
+          <div className="navbar-page-title">
+            {location.pathname === '/dashboard' && '🌸 Dashboard Overview'}
+            {location.pathname === '/calendar' && '📅 Cycle Calendar'}
+            {location.pathname === '/cycle' && '🔄 Cycle Tracker'}
+            {location.pathname === '/daily-log' && '📝 Daily Health Log'}
+            {location.pathname === '/profile' && '👤 Profile & Settings'}
+            {location.pathname === '/insights' && '💡 Health Insights'}
+            {location.pathname === '/analytics' && '📊 Health Analytics'}
+          </div>
 
           {/* Desktop Nav Links */}
           <div className="navbar-links">
@@ -61,6 +83,14 @@ export default function Navbar() {
             <NavLink to="/daily-log" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
               <span className="nav-icon">📝</span>
               <span>Daily Log</span>
+            </NavLink>
+            <NavLink to="/insights" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              <span className="nav-icon">💡</span>
+              <span>Insights</span>
+            </NavLink>
+            <NavLink to="/analytics" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              <span className="nav-icon">📈</span>
+              <span>Analytics</span>
             </NavLink>
             <NavLink to="/profile" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
               <span className="nav-icon">👤</span>
@@ -128,6 +158,14 @@ export default function Navbar() {
           <NavLink to="/daily-log" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
             <span className="sidebar-icon">📝</span>
             <span>Daily Log</span>
+          </NavLink>
+          <NavLink to="/insights" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+            <span className="sidebar-icon">💡</span>
+            <span>Insights</span>
+          </NavLink>
+          <NavLink to="/analytics" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+            <span className="sidebar-icon">📈</span>
+            <span>Analytics</span>
           </NavLink>
           <NavLink to="/profile" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
             <span className="sidebar-icon">👤</span>
