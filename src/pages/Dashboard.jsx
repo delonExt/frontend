@@ -2,7 +2,21 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import LogDetailModal from '../components/LogDetailModal';
 import './Dashboard.css';
+
+// Safe date formatter that avoids timezone date-shifting in browser
+const formatLocalDateString = (dateStr) => {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  const year = parseInt(parts[0]);
+  const month = parseInt(parts[1]) - 1;
+  const day = parseInt(parts[2]);
+  
+  const d = new Date(year, month, day);
+  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+};
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -11,6 +25,10 @@ export default function Dashboard() {
   const [recentLogs, setRecentLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  // Log Detail Modal State
+  const [selectedLog, setSelectedLog] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Auto-rotating tips carousel state
   const [activeTip, setActiveTip] = useState(0);
@@ -38,7 +56,7 @@ export default function Dashboard() {
   const loadDashboardData = async () => {
     try {
       const [predRes, cyclesRes, logsRes] = await Promise.all([
-        api.get('/predictions').catch(() => ({ data: null })),
+        api.post('/predictions').catch(() => ({ data: null })),
         api.get('/cycles').catch(() => ({ data: [] })),
         api.get('/daily-logs').catch(() => ({ data: [] })),
       ]);
@@ -301,7 +319,7 @@ export default function Dashboard() {
                       }}
                     />
                     <span className="dash-chart-bar-label">
-                      {new Date(c.start_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                      {formatLocalDateString(c.start_date)}
                     </span>
                   </div>
                 );
@@ -319,11 +337,19 @@ export default function Dashboard() {
           {recentLogs.length > 0 ? (
             <div className="dash-log-list">
               {recentLogs.map(log => (
-                <div key={log.id} className="dash-log-item">
+                <div 
+                  key={log.id} 
+                  className="dash-log-item"
+                  onClick={() => {
+                    setSelectedLog(log);
+                    setIsModalOpen(true);
+                  }}
+                  style={{ cursor: 'pointer' }}
+                >
                   <div className="dash-log-date">
-                    {new Date(log.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                    {formatLocalDateString(log.date)}
                   </div>
-                  <span className="dash-log-mood">{moodEmojis[log.mood] || '😐'}</span>
+                  <span className="dash-log-mood">{moodEmojis[Number(log.mood)] || '😐'}</span>
                   <div className="dash-log-details">
                     <span>💤 {log.sleep_quality || '—'}/5 Tidur</span>
                     <span>😰 {log.stress_level || '—'}/5 Stres</span>
@@ -360,6 +386,13 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Reusable Log Detail Modal */}
+      <LogDetailModal 
+        log={selectedLog}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }

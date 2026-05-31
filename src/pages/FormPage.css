@@ -146,38 +146,110 @@
   font-weight: 500;
 }
 
-/* Range Input */
-.range-input {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 8px;
-  border-radius: 4px;
-  background: linear-gradient(90deg, var(--primary-200), var(--primary-500));
-  outline: none;
-  margin: 8px 0;
+/* Wellness Card Selector (Sleep & Stress) */
+.wellness-selector {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-top: 8px;
 }
 
-.range-input::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: white;
-  border: 3px solid var(--primary-500);
-  cursor: pointer;
-  box-shadow: var(--shadow-md);
-  transition: all var(--transition-fast);
-}
-
-.range-input::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
-}
-
-.range-labels {
+.wellness-card {
   display: flex;
-  justify-content: space-between;
-  font-size: 0.75rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 8px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  font-family: var(--font-sans);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.wellness-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.wellness-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.wellness-card:hover::after {
+  opacity: 1;
+}
+
+.wellness-emoji {
+  font-size: 2rem;
+  transition: transform var(--transition-base) ease;
+}
+
+.wellness-card:hover .wellness-emoji {
+  transform: scale(1.2) rotate(6deg);
+}
+
+.wellness-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  transition: color var(--transition-fast);
+}
+
+.wellness-desc {
+  font-size: 0.68rem;
   color: var(--gray-400);
+  line-height: 1.35;
+  transition: color var(--transition-fast);
+}
+
+/* Sleep Quality Card Colors */
+.sleep-card:hover {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.02);
+}
+
+.sleep-card.active {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.08);
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.25);
+}
+
+.sleep-card.active .wellness-label {
+  color: #1d4ed8;
+}
+
+.sleep-card.active .wellness-desc {
+  color: #2563eb;
+}
+
+/* Stress Level Card Colors */
+.stress-card:hover {
+  border-color: #a855f7;
+  background: rgba(168, 85, 247, 0.02);
+}
+
+.stress-card.active {
+  border-color: #a855f7;
+  background: rgba(168, 85, 247, 0.08);
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.25);
+}
+
+.stress-card.active .wellness-label {
+  color: #7e22ce;
+}
+
+.stress-card.active .wellness-desc {
+  color: #9333ea;
 }
 
 /* Toggle */
@@ -330,5 +402,62 @@
 
   .symptoms-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .wellness-selector {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .form-page {
+    padding: 20px 16px;
+  }
+  .form-card {
+    padding: 20px;
+  }
+  .flow-selector {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .flow-btn {
+    min-width: calc(50% - 4px);
+    padding: 8px;
+    font-size: 0.82rem;
+  }
+  .mood-selector {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+  }
+  .mood-btn {
+    padding: 8px 2px;
+  }
+  .mood-emoji {
+    font-size: 1.4rem;
+  }
+  .mood-label {
+    display: none; /* Hide text label on tiny screens to fit emojis perfectly */
+  }
+  .symptoms-grid {
+    grid-template-columns: 1fr;
+  }
+  .wellness-selector {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .history-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 14px;
+  }
+  .history-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    width: 100%;
+  }
+  .history-dates {
+    width: 100%;
   }
 }

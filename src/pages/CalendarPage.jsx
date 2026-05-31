@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
+import LogDetailModal from '../components/LogDetailModal';
 import './CalendarPage.css';
 
 export default function CalendarPage() {
@@ -7,6 +8,10 @@ export default function CalendarPage() {
   const [cycles, setCycles] = useState([]);
   const [prediction, setPrediction] = useState(null);
   const [dailyLogs, setDailyLogs] = useState([]);
+
+  // Detail Modal State
+  const [selectedLog, setSelectedLog] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -37,11 +42,17 @@ export default function CalendarPage() {
   const goToNextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
   const goToToday = () => setCurrentDate(new Date());
 
-  // Normalize any date value (Date object, ISO string, etc.) to "YYYY-MM-DD"
+  // Normalize any date value (Date object, ISO string, etc.) to local "YYYY-MM-DD"
   const toDateStr = (val) => {
     if (!val) return '';
     if (typeof val === 'string' && val.length === 10) return val;
-    return new Date(val).toISOString().split('T')[0];
+    
+    const d = new Date(val);
+    if (isNaN(d.getTime())) return '';
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
   const isInPeriod = (dateStr) => {
@@ -63,12 +74,17 @@ export default function CalendarPage() {
     return d >= predDate && d <= predEnd;
   };
 
-  const hasLog = (dateStr) => {
-    return dailyLogs.some(l => toDateStr(l.date) === dateStr);
+  const getLogForDate = (dateStr) => {
+    return dailyLogs.find(l => toDateStr(l.date) === dateStr);
   };
 
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  const handleDayClick = (logObj) => {
+    setSelectedLog(logObj);
+    setIsModalOpen(true);
+  };
 
   const renderDays = () => {
     const days = [];
@@ -83,15 +99,23 @@ export default function CalendarPage() {
       const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === d;
       const period = isInPeriod(dateStr);
       const predicted = isPredicted(dateStr);
-      const logged = hasLog(dateStr);
+      const logObj = getLogForDate(dateStr);
+      const logged = !!logObj;
 
       let className = 'cal-day';
       if (isToday) className += ' today';
       if (period) className += ' period';
       if (predicted) className += ' predicted';
+      if (logged) className += ' has-log';
 
       days.push(
-        <div key={d} className={className}>
+        <div 
+          key={d} 
+          className={className}
+          onClick={() => logged && handleDayClick(logObj)}
+          style={logged ? { cursor: 'pointer' } : undefined}
+          title={logged ? 'Klik untuk melihat detail log harian' : undefined}
+        >
           <span className="day-number">{d}</span>
           <div className="day-indicators">
             {period && <span className="indicator period-dot" title="Period">🔴</span>}
@@ -138,6 +162,13 @@ export default function CalendarPage() {
           <div className="legend-item"><span className="legend-color today-color"></span> Today</div>
         </div>
       </div>
+
+      {/* Reusable Log Detail Modal */}
+      <LogDetailModal 
+        log={selectedLog}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }

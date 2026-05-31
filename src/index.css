@@ -510,8 +510,33 @@ input,
 select, 
 textarea {
   min-height: 38px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .btn {
   min-height: 44px;
+}
+
+/* Premium Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(236, 72, 153, 0.02);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(236, 72, 153, 0.18);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(236, 72, 153, 0.35);
+}
+
+main {
+  flex: 1;
 }

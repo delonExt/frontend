@@ -305,4 +305,22 @@
   .auth-subtitle {
     font-size: 0.88rem;
   }
+
+  .shape-1 {
+    width: 260px;
+    height: 260px;
+    top: -60px;
+    right: -40px;
+  }
+
+  .shape-2 {
+    width: 200px;
+    height: 200px;
+    bottom: -40px;
+    left: -40px;
+  }
+
+  .shape-3 {
+    display: none;
+  }
 }
