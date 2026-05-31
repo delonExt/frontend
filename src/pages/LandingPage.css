@@ -105,6 +105,10 @@
   gap: 12px;
 }
 
+.lp-mobile-nav-actions {
+  display: none;
+}
+
 .lp-btn-ghost {
   background: none;
   border: none;
@@ -1660,7 +1664,8 @@
 
 @media (max-width: 768px) {
   .lp-nav-links { display: none; }
-  .lp-hamburger { display: flex; }
+  .lp-hamburger { display: flex; z-index: 1005; }
+  .lp-nav-actions { display: none !important; }
   .lp-stats-grid,
   .lp-features-grid,
   .lp-steps,
@@ -1821,29 +1826,83 @@
    MOBILE NAVIGATION MENU (ACTIVE OVERLAY)
    ───────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
+  body.body-menu-lock {
+    overflow: hidden !important;
+    height: 100vh;
+  }
+
   .lp-nav-links.active {
     display: flex !important;
     position: fixed;
-    top: 60px;
+    top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(30, 27, 75, 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(15, 12, 41, 0.97); /* Premium glassmorphism overlay */
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 32px;
+    gap: 28px;
     z-index: 999;
-    padding: 40px;
+    padding: 60px 40px 40px;
     animation: lp-fade-slide-down 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
 
   .lp-nav-links.active li a {
-    font-size: 1.5rem;
-    color: white;
+    font-size: 1.45rem;
+    color: rgba(255, 255, 255, 0.85);
     font-weight: 600;
+    letter-spacing: -0.3px;
+    transition: color 0.2s, transform 0.2s;
+  }
+
+  .lp-nav-links.active li a:hover {
+    color: #ec4899;
+    transform: scale(1.05);
+  }
+
+  .lp-mobile-nav-actions {
+    display: flex !important;
+    flex-direction: column;
+    width: 100%;
+    gap: 16px;
+    margin-top: 24px;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 28px;
+  }
+
+  .lp-mobile-nav-actions .lp-btn-ghost {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: 10px 24px;
+    transition: all 0.2s;
+    background: none !important;
+  }
+
+  .lp-mobile-nav-actions .lp-btn-ghost:hover {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .lp-mobile-nav-actions .btn-primary {
+    width: 80%;
+    max-width: 260px;
+    text-align: center;
+    padding: 12px 24px;
+    font-size: 1.05rem;
+    border-radius: 12px;
+    background: var(--gradient-primary) !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 4px 14px rgba(236, 72, 153, 0.3);
+  }
+
+  .lp-hamburger.active span {
+    background: white !important;
   }
 
   .lp-hamburger.active span:nth-child(1) {
