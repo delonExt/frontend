@@ -1,0 +1,334 @@
+/* ═══════════════════════════════════════════════════════════
+   INSIGHTS PAGE — YeoCycles Premium Stylesheet
+   ═══════════════════════════════════════════════════════════ */
+
+.insights-page {
+  padding: 32px 24px 48px;
+}
+
+.insights-header {
+  margin-bottom: 36px;
+}
+
+.insights-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  color: var(--gray-500);
+  font-weight: 500;
+  gap: 16px;
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.insights-main-col {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.insights-card {
+  padding: 28px;
+}
+
+/* ─── Phase Card ─── */
+.phase-card {
+  border-left: 5px solid var(--primary-500);
+}
+
+.phase-card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.phase-badge-emoji {
+  font-size: 2.8rem;
+  filter: drop-shadow(0 4px 10px rgba(236, 72, 153, 0.25));
+}
+
+.phase-card-header h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--gray-900);
+}
+
+.phase-day {
+  font-size: 0.9rem;
+  color: var(--primary-600);
+  font-weight: 600;
+}
+
+.phase-description {
+  color: var(--gray-600);
+  font-size: 0.98rem;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.phase-progress-wrap {
+  margin-bottom: 28px;
+  background: rgba(236, 72, 153, 0.03);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px dashed rgba(236, 72, 153, 0.15);
+}
+
+.phase-progress-bar {
+  height: 8px;
+  background: var(--gray-200);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.phase-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-500), var(--secondary-500));
+  border-radius: var(--radius-full);
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.phase-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--gray-400);
+  font-weight: 600;
+}
+
+.phase-progress-labels span:nth-child(2) {
+  color: var(--primary-600);
+}
+
+.phase-tips-list h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 12px;
+}
+
+.phase-tips-list ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.phase-tips-list li {
+  font-size: 0.92rem;
+  color: var(--gray-600);
+  padding-left: 4px;
+}
+
+/* ─── Symptoms Summary Card ─── */
+.symptoms-meta-desc {
+  font-size: 0.88rem;
+  color: var(--gray-400);
+  margin-bottom: 20px;
+}
+
+.symptoms-stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.symptom-stat-box {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.symptom-stat-val {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--gray-850);
+  background: linear-gradient(135deg, var(--gray-800) 0%, var(--primary-600) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.symptom-stat-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+  display: block;
+}
+
+.symptoms-list-wrap h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--gray-700);
+  margin-bottom: 14px;
+}
+
+.symptom-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.symptom-bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.symptom-bar-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.symptom-name {
+  color: var(--gray-700);
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.symptom-count {
+  color: var(--primary-600);
+  font-weight: 700;
+}
+
+.symptom-bar-bg {
+  height: 8px;
+  background: var(--gray-100);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.symptom-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-400), var(--secondary-400));
+  border-radius: var(--radius-full);
+  transition: width 0.8s ease-out;
+}
+
+.symptoms-empty {
+  text-align: center;
+  padding: 30px 16px;
+  background: rgba(16, 185, 129, 0.03);
+  border: 1px dashed rgba(16, 185, 129, 0.15);
+  border-radius: var(--radius-md);
+}
+
+.empty-emoji {
+  font-size: 2.2rem;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.symptoms-empty p {
+  font-size: 0.9rem;
+  color: var(--success);
+  font-weight: 500;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+/* ─── Self-Care Cards (Right Column) ─── */
+.section-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  margin-bottom: 20px;
+  letter-spacing: -0.2px;
+}
+
+.recommendations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.rec-card {
+  padding: 24px;
+  transition: transform var(--transition-base);
+}
+
+.rec-card:hover {
+  transform: translateY(-2px);
+}
+
+.rec-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.rec-icon {
+  font-size: 1.6rem;
+}
+
+.rec-card-header h3 {
+  font-size: 1.05rem;
+  font-weight: 750;
+  color: var(--gray-900);
+}
+
+.rec-content {
+  font-size: 0.92rem;
+  color: var(--gray-600);
+  line-height: 1.55;
+}
+
+/* ─── Responsive Breakpoints ─── */
+@media (max-width: 1023px) {
+  .insights-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .insights-page {
+    padding: 24px 16px 40px;
+  }
+  .insights-card,
+  .rec-card {
+    padding: 20px;
+  }
+  .phase-badge-emoji {
+    font-size: 2.4rem;
+  }
+  .phase-card-header h2 {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .insights-page {
+    padding: 20px 12px 32px;
+  }
+  .symptoms-stats-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .rec-icon {
+    font-size: 1.4rem;
+  }
+  .rec-card-header h3 {
+    font-size: 0.98rem;
+  }
+}

@@ -9,6 +9,9 @@ import CalendarPage from './pages/CalendarPage';
 import CycleForm from './pages/CycleForm';
 import DailyLogForm from './pages/DailyLogForm';
 import ProfilePage from './pages/ProfilePage';
+import InsightsPage from './pages/InsightsPage';
+import AnalyticsPage from './pages/AnalyticsPage';
+import MedicalReportPrint from './pages/MedicalReportPrint';
 
 function ProtectedRoute({ children }) {
   const { token, loading } = useAuth();
@@ -69,6 +72,9 @@ function AppRoutes() {
       <Route path="/cycle" element={<ProtectedRoute><CycleForm /></ProtectedRoute>} />
       <Route path="/daily-log" element={<ProtectedRoute><DailyLogForm /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+      <Route path="/insights" element={<ProtectedRoute><InsightsPage /></ProtectedRoute>} />
+      <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+      <Route path="/print-report" element={<ProtectedRoute><MedicalReportPrint /></ProtectedRoute>} />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />

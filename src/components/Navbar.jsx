@@ -62,6 +62,8 @@ export default function Navbar() {
             {location.pathname === '/cycle' && '🔄 Cycle Tracker'}
             {location.pathname === '/daily-log' && '📝 Daily Health Log'}
             {location.pathname === '/profile' && '👤 Profile & Settings'}
+            {location.pathname === '/insights' && '💡 Health Insights'}
+            {location.pathname === '/analytics' && '📊 Health Analytics'}
           </div>
 
           {/* Desktop Nav Links */}
@@ -81,6 +83,14 @@ export default function Navbar() {
             <NavLink to="/daily-log" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
               <span className="nav-icon">📝</span>
               <span>Daily Log</span>
+            </NavLink>
+            <NavLink to="/insights" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              <span className="nav-icon">💡</span>
+              <span>Insights</span>
+            </NavLink>
+            <NavLink to="/analytics" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              <span className="nav-icon">📈</span>
+              <span>Analytics</span>
             </NavLink>
             <NavLink to="/profile" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
               <span className="nav-icon">👤</span>
@@ -148,6 +158,14 @@ export default function Navbar() {
           <NavLink to="/daily-log" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
             <span className="sidebar-icon">📝</span>
             <span>Daily Log</span>
+          </NavLink>
+          <NavLink to="/insights" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+            <span className="sidebar-icon">💡</span>
+            <span>Insights</span>
+          </NavLink>
+          <NavLink to="/analytics" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+            <span className="sidebar-icon">📈</span>
+            <span>Analytics</span>
           </NavLink>
           <NavLink to="/profile" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
             <span className="sidebar-icon">👤</span>
