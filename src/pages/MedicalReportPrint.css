@@ -27,12 +27,44 @@
   margin: 0 auto 24px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   background: white;
-  padding: 16px 24px;
+  padding: 20px 28px;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  border: 1px solid rgba(236, 72, 153, 0.08);
+  border: 1px solid rgba(236, 72, 153, 0.1);
+  gap: 28px;
 }
+
+.print-guide-message {
+  flex: 1;
+}
+
+.print-guide-message h3 {
+  font-size: 0.95rem !important;
+  font-weight: 750;
+  color: var(--primary-600);
+  margin-bottom: 4px;
+}
+
+.print-guide-message p {
+  font-size: 0.82rem;
+  color: var(--gray-500);
+  line-height: 1.5;
+}
+
+.print-action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+  width: 180px;
+}
+
+.print-action-buttons button {
+  width: 100%;
+}
+
 
 .print-document {
   max-width: 800px;

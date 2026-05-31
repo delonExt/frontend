@@ -16,25 +16,31 @@ export default function ProfilePage() {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [reportRange, setReportRange] = useState('3');
+  const [exporting, setExporting] = useState(false);
 
   const handleDownloadCSV = async () => {
     try {
       setError('');
       setSuccess('');
+      setExporting(true);
       const response = await api.get(`/export/csv?range=${reportRange}`, {
         responseType: 'blob'
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `Laporan_Kesehatan_YeoCycles_${new Date().toISOString().split('T')[0]}.csv`);
+      
+      const fileName = `Laporan_YeoCycles_${user?.name?.replace(/[^a-z0-9]/gi, '_') || 'User'}_${new Date().toISOString().split('T')[0]}.csv`;
+      link.setAttribute('download', fileName);
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
-      setSuccess('Laporan CSV berhasil diunduh! 📥');
+      setSuccess('Laporan Excel (.csv) berhasil diunduh! 📥');
     } catch (err) {
       console.error('Error downloading CSV:', err);
-      setError('Gagal mengunduh laporan CSV.');
+      setError('Gagal mengunduh laporan Excel.');
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -145,11 +151,21 @@ export default function ProfilePage() {
           </div>
 
           <div className="report-buttons" style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginTop: '12px' }}>
-            <button onClick={handleDownloadCSV} className="btn btn-secondary" style={{ flex: 1, minWidth: '140px' }}>
-              📥 Unduh CSV
+            <button 
+              onClick={handleDownloadCSV} 
+              className="btn btn-secondary" 
+              style={{ flex: 1, minWidth: '150px' }}
+              disabled={exporting}
+            >
+              {exporting ? '⏳ Mengunduh...' : '📥 Unduh Excel (.csv)'}
             </button>
-            <button onClick={handlePrintPDF} className="btn btn-primary" style={{ flex: 1, minWidth: '140px' }}>
-              🖨️ Cetak / PDF
+            <button 
+              onClick={handlePrintPDF} 
+              className="btn btn-primary" 
+              style={{ flex: 1, minWidth: '150px' }}
+              disabled={exporting}
+            >
+              📄 Unduh PDF (Cetak)
             </button>
           </div>
         </div>

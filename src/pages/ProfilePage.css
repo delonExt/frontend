@@ -106,3 +106,15 @@
     padding: 4px 12px;
   }
 }
+
+.report-generator-form {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.report-buttons {
+  margin-top: 8px;
+}
+

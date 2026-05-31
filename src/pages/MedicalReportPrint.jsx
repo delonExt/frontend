@@ -110,12 +110,21 @@ export default function MedicalReportPrint() {
     <div className="print-report-container">
       {/* Interactive Controls (Hidden on Print) */}
       <div className="print-controls no-print">
-        <button onClick={() => navigate('/profile')} className="btn btn-secondary btn-sm">
-          ⬅️ Kembali ke Profil
-        </button>
-        <button onClick={() => window.print()} className="btn btn-primary btn-sm">
-          🖨️ Cetak Ulang Laporan
-        </button>
+        <div className="print-guide-message">
+          <h3>💡 Petunjuk Menyimpan Sebagai PDF:</h3>
+          <p>
+            Dialog cetak sistem akan terbuka secara otomatis. Jika tidak, klik tombol di sebelah kanan. 
+            Untuk menyimpannya sebagai berkas PDF digital di komputer atau ponsel Anda, silakan ubah pilihan <strong>Tujuan (Destination)</strong> menjadi <strong>"Simpan sebagai PDF" / "Save as PDF"</strong> pada jendela cetak yang muncul sebelum menekan tombol simpan.
+          </p>
+        </div>
+        <div className="print-action-buttons">
+          <button onClick={() => navigate('/profile')} className="btn btn-secondary btn-sm">
+            ⬅️ Kembali ke Profil
+          </button>
+          <button onClick={() => window.print()} className="btn btn-primary btn-sm">
+            🖨️ Cetak / Simpan PDF
+          </button>
+        </div>
       </div>
 
       {/* Printable Report Document */}
